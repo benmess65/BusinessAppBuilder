@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="transparent">
+  <item
+      android:state_pressed="true">
+    <shape android:shape="rectangle">
+      <solid android:color="@color/white"/>
+    </shape>
+  </item>
+  <item
+      android:state_selected="true">
+    <shape android:shape="rectangle">
+      <solid android:color="@color/white"/>
+    </shape>
+  </item>
+  <item android:gravity="bottom|right" android:drawable="@drawable/spinner_default_arrow2"></item>
+</layer-list>

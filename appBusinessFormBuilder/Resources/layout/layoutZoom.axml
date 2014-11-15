@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <Button
+        android:id="@+id/btnCreateNewForm2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Create New F 2orm" />
+    <Button
+        android:id="@+id/btnPreferences2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Preferences 2" />
+    <FrameLayout
+        class="appbusinessformbuilder.ZoomView"
+        android:id="@+id/fragment_container"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <Button
+            android:id="@+id/btnCreateNewForm4"
+            android:layout_width="100dp"
+            android:layout_height="200dp"
+            android:text="Create New ZZZZ" />
+    </FrameLayout>
+</LinearLayout>

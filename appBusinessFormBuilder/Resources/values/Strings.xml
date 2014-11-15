@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Hello">Hello World, Click Me!</string>
+    <string name="ApplicationName">appBusinessFormBuilder</string>
+    <string name="CellReference">R0C0</string>
+    <integer name="CellType">-1</integer>
+    <integer name="ParameterId">-1</integer>
+    <integer name="CellSectionId">-1</integer>
+  <integer name="CellRowId">-1</integer>
+  <integer name="CellColumnId">-1</integer>
+  <integer name="CellId">-1</integer>
+  <integer name="FormId">-1</integer>
+
+
+</resources>
