@@ -3681,6 +3681,7 @@ namespace appBusinessFormBuilder
                     if (bItemFound)
                     {
                         //Make sure we break right out of the outer loop
+
                         break;
                     }
                 }
