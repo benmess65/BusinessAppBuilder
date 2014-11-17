@@ -3649,6 +3649,7 @@ namespace appBusinessFormBuilder
                             //    vw.PerformClick();
                             //}
 //                            View vwFocused = (View)mainView.FocusedChild;
+
                             break;
                         }
                     }
