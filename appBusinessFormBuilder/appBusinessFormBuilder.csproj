@@ -114,7 +114,9 @@
     <AndroidResource Include="Resources\drawable\defaultSpinner2.xml" />
     <AndroidResource Include="Resources\drawable\spinner_default_arrow2.png" />
     <AndroidResource Include="Resources\drawable\spinner_default_holo_light_am2.png" />
-    <AndroidResource Include="Resources\drawable\defaultRectangle.xml" />
+    <AndroidResource Include="Resources\drawable\defaultRectangle.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\drawable\NShapedTextBox.xml" />
     <AndroidResource Include="Resources\drawable\CShapedTextBox.xml" />
   </ItemGroup>

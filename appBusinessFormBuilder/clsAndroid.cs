@@ -189,6 +189,59 @@ namespace appBusinessFormBuilder
 
 
         }
+
+        public class TextTypeFaceClass
+        {
+            public Typeface GetTypeface(string sFont)
+            {
+                Typeface m_Typeface;
+
+                switch (sFont)
+                {
+                    case "Sans Serif":
+                        m_Typeface = Typeface.SansSerif;
+                        break;
+                    case "Serif":
+                        m_Typeface = Typeface.Serif;
+                        break;
+                    case "Monospace":
+                        m_Typeface = Typeface.Monospace;
+                        break;
+                    default:
+                        m_Typeface = Typeface.Default;
+                        break;
+                }
+
+                return m_Typeface;
+            }
+
+            public TypefaceStyle GetTextStyle(string sBold, string sItalic)
+            {
+                TypefaceStyle m_TypefaceStyle;
+                string sStyle = sBold + ";" + sItalic;
+
+                switch (sStyle)
+                {
+                    case "Yes;":
+                    case "Yes;No":
+                        m_TypefaceStyle = TypefaceStyle.Bold;
+                        break;
+                    case ";Yes":
+                    case "No;Yes":
+                        m_TypefaceStyle = TypefaceStyle.Italic;
+                        break;
+                    case "Yes;Yes":
+                        m_TypefaceStyle = TypefaceStyle.BoldItalic;
+                        break;
+                    default:
+                        m_TypefaceStyle = TypefaceStyle.Normal;
+                        break;
+                }
+
+                return m_TypefaceStyle;
+            }
+        }
+
         public class DropdownBox
         {
             Context m_context;
@@ -502,7 +555,13 @@ namespace appBusinessFormBuilder
             int m_iBottomPaddingCell = 0;
             int m_iRightPaddingCell = 0;
             int m_iLeftPaddingCell = 0;
+            int m_iTopPaddingText = 0;
+            int m_iBottomPaddingText = 0;
+            int m_iRightPaddingText = 0;
+            int m_iLeftPaddingText = 0;
+            int m_iTextSize = 12;
             string m_sAlign = "Left";
+            string m_sVertAlign = "Center";
             int m_iRecordCounter = -1;
             string m_DDSQL = "";
             bool m_bIncludeSelect = false;
@@ -530,6 +589,7 @@ namespace appBusinessFormBuilder
             Android.Graphics.Color m_BorderColor = Android.Graphics.Color.Black;
             Android.Graphics.Color m_GridlineColor = Android.Graphics.Color.LightGray;
             Android.Graphics.Color m_RadioGroupHighlightColor = Android.Graphics.Color.Yellow;
+            Android.Graphics.Color m_TextColor = Android.Graphics.Color.Black;
 
             public void SetMainActivity(Activity activity)
             {
@@ -607,9 +667,23 @@ namespace appBusinessFormBuilder
             //    }
             //}
 
+            public void SetTextPadding(int iLeft, int iTop, int iRight, int iBottom)
+            {
+                m_iLeftPaddingText = iLeft;
+                m_iTopPaddingText = iTop;
+                m_iRightPaddingText = iRight;
+                m_iBottomPaddingText = iBottom;
+            }
+
+
             public void SetTextAlignment(string sAlignment)
             {
                 m_sAlign = sAlignment;
+            }
+
+            public void SetTextVerticalAlignment(string sAlignment)
+            {
+                m_sVertAlign = sAlignment;
             }
 
             public void SetBackgroundColor(string sColor)
@@ -652,6 +726,9 @@ namespace appBusinessFormBuilder
                     case (int)ColorType.RadioGroupHighlight:
                         m_RadioGroupHighlightColor = color;
                         break;
+                    case (int)ColorType.Text:
+                        m_TextColor = color;
+                        break;
                         
                 }
             }
@@ -684,47 +761,21 @@ namespace appBusinessFormBuilder
 
             public void SetTextFont(string sFont)
             {
-
-                switch (sFont)
-                {
-                    case "Sans Serif":
-                        m_Typeface = Typeface.SansSerif;
-                        break;
-                    case "Serif":
-                        m_Typeface = Typeface.Serif;
-                        break;
-                    case "Monospace":
-                        m_Typeface = Typeface.Monospace;
-                        break;
-                    default:
-                        m_Typeface = Typeface.Default;
-                        break;
-                }
+                TextTypeFaceClass typeface = new TextTypeFaceClass();
+                m_Typeface = typeface.GetTypeface(sFont);
             }
 
             public void SetTextStyle(string sBold, string sItalic)
             {
-                string sStyle = sBold + ";" + sItalic;
-
-                switch (sStyle)
-                {
-                    case "Yes;":
-                    case "Yes;No":
-                        m_TypefaceStyle = TypefaceStyle.Bold;
-                        break;
-                    case ";Yes":
-                    case "No;Yes":
-                        m_TypefaceStyle = TypefaceStyle.Italic;
-                        break;
-                    case "Yes;Yes":
-                        m_TypefaceStyle = TypefaceStyle.BoldItalic;
-                        break;
-                    default:
-                        m_TypefaceStyle = TypefaceStyle.Normal;
-                        break;
-                }
+                TextTypeFaceClass typeface = new TextTypeFaceClass();
+                m_TypefaceStyle = typeface.GetTextStyle(sBold, sItalic);
             }
 
+            public void SetTextSize(int iSize)
+            {
+                m_iTextSize = iSize;
+
+            }
             public View GetCellView(int iType)
             {
                 float fExtraPadding = 0f;
@@ -788,7 +839,7 @@ namespace appBusinessFormBuilder
 
 
 
-                row.SetPadding(m_iLeftPaddingCell, m_iTopPaddingCell, m_iRightPaddingCell, m_iBottomPaddingCell);
+                row.SetPadding(ConvertPixelsToDp(m_iLeftPaddingCell), ConvertPixelsToDp(m_iTopPaddingCell), ConvertPixelsToDp(m_iRightPaddingCell), ConvertPixelsToDp(m_iBottomPaddingCell));
                 //                row.SetMinimumHeight(ConvertPixelsToDp(m_iRowHeight));
 
                 switch (iType)
@@ -804,7 +855,9 @@ namespace appBusinessFormBuilder
                         TextView txt = new TextView(m_context);
                         txt.Text = m_text;
                         txt.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell));
-                        txt.SetTextColor(Android.Graphics.Color.Black);
+                        txt.SetTextColor(m_TextColor);
+                        txt.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
+                        txt.SetTypeface(m_Typeface, m_TypefaceStyle);
                         if (iType == (int)ItemType.ColumnHeader || iType == (int)ItemType.ColumnDetail || iType == (int)ItemType.ColumnFooter)
                         {
                             txt.SetBackgroundResource(appBusinessFormBuilder.Resource.Drawable.NShapedTextBox);
@@ -822,40 +875,114 @@ namespace appBusinessFormBuilder
                             txt.SetBackgroundColor(m_BackgroundColor);
                         }
                         txt.Id = m_cellid + 100;
-                        txt.SetPadding(2, 2, 2, 2);
+                        txt.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
                         txt.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell));
                         switch(m_sAlign)
                         {
                             case "Left":
-                                txt.Gravity = GravityFlags.Left;
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txt.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txt.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txt.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
                                 break;
                             case "Center":
-                                txt.Gravity = GravityFlags.Center;
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txt.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txt.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txt.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
                                 break;
                             case "Right":
-                                txt.Gravity = GravityFlags.Right;
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txt.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txt.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txt.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
                                 break;
                         }
                         row.AddView(txt);
                         break;
                     case (int)ItemType.TextBox:
-                        //TextView rect = new TextView(m_context);
-                        //rect.SetHeight(m_ControlHeight - ConvertPixelsToDp(20));
-                        //SetWidth(m_width - ConvertPixelsToDp(fExtraPadding));
-                        //row.AddView(rect);
-
                         int iEditTextResource = appBusinessFormBuilder.Resource.Layout.textbox;
                         LayoutInflater li = LayoutInflater.From(m_context);                        
                         EditText txtEdit = (EditText)li.Inflate(iEditTextResource, null);
                         txtEdit.Text = m_text;
                         txtEdit.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell));
-                        txtEdit.SetTextColor(Android.Graphics.Color.Blue);
-                        txtEdit.SetBackgroundColor(Android.Graphics.Color.Beige);
+                        txtEdit.SetTextColor(m_TextColor);
+                        txtEdit.SetTypeface(m_Typeface, m_TypefaceStyle);
+                        txtEdit.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
+                        txtEdit.SetBackgroundColor(m_BackgroundColor);
                         txtEdit.Id = m_cellid + 100;
                         txtEdit.SetSingleLine(true);
-                        txtEdit.SetPadding(2, 2, 2, 2);
+                        txtEdit.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
                         txtEdit.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
-                        txtEdit.Gravity = GravityFlags.Center;
+                        switch(m_sAlign)
+                        {
+                            case "Left":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtEdit.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtEdit.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtEdit.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Center":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtEdit.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtEdit.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtEdit.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Right":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtEdit.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtEdit.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtEdit.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                        }
                         if (m_iBuildType == 1)
                         {
                             txtEdit.Enabled = false;
@@ -864,23 +991,70 @@ namespace appBusinessFormBuilder
                         m_txt = txtEdit;
                         break;
                     case (int)ItemType.TextArea:
-                        int iEditTextAreaResource = appBusinessFormBuilder.Resource.Layout.textbox;
-                        LayoutInflater li2 = LayoutInflater.From(m_context);
-                        EditText txtEdit2 = (EditText)li2.Inflate(iEditTextAreaResource, null);
+                        int iEditTextResource2 = appBusinessFormBuilder.Resource.Layout.textbox;
+                        LayoutInflater li2 = LayoutInflater.From(m_context);                        
+                        EditText txtEdit2 = (EditText)li2.Inflate(iEditTextResource2, null);
                         txtEdit2.Text = m_text;
-                        txtEdit2.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding));
-                        txtEdit2.SetTextColor(Android.Graphics.Color.Black);
-                        txtEdit2.SetSingleLine(false);
-//                        txtEdit2.SetHeight(ConvertPixelsToDp(98));
+                        txtEdit2.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell));
+                        txtEdit2.SetTextColor(m_TextColor);
+                        txtEdit2.SetTypeface(m_Typeface, m_TypefaceStyle);
+                        txtEdit2.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
+                        txtEdit2.SetBackgroundColor(m_BackgroundColor);
                         txtEdit2.Id = m_cellid + 100;
-                        txtEdit2.SetPadding(2, 2, 2, 2);
+                        txtEdit2.SetSingleLine(false);
+                        txtEdit2.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
+                        txtEdit2.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
+                        switch(m_sAlign)
+                        {
+                            case "Left":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtEdit2.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtEdit2.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtEdit2.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Center":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtEdit2.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtEdit2.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtEdit2.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Right":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtEdit2.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtEdit2.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtEdit2.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                        }
                         if (m_iBuildType == 1)
                         {
                             txtEdit2.Enabled = false;
                         }
                         row.AddView(txtEdit2);
                         m_txt = txtEdit2;
-//                        row.SetMinimumHeight(ConvertPixelsToDp(98));
                         break;
                     case (int)ItemType.DropDown:
                         TableRow.LayoutParams params2 = new TableRow.LayoutParams();
@@ -901,7 +1075,7 @@ namespace appBusinessFormBuilder
                         cmbEdit0.LayoutParameters = params2;
 
                         ViewGroup.LayoutParams lp = cmbEdit0.LayoutParameters;
-                        lp.Width = m_width - ConvertPixelsToDp(fExtraPadding);
+                        lp.Width = m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell);
                         lp.Height = m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell);
                         cmbEdit0.LayoutParameters = lp;
                         cmbEdit0.SetBackgroundResource(Resource.Drawable.defaultSpinner2);
@@ -928,18 +1102,8 @@ namespace appBusinessFormBuilder
                         m_Spinner = cmbEdit0;
                         break;
                     case (int)ItemType.RadioButton:
-
-//                        LinearLayout.LayoutParams paramsRad = new LinearLayout.LayoutParams(m_width - ConvertPixelsToDp(2*fExtraPadding),(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell))/2);
                         TableRow.LayoutParams paramsRad = new TableRow.LayoutParams(m_width - ConvertPixelsToDp(fExtraPadding), m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell));
                         RadioGroup radGrp = new RadioGroup(m_context);
-                        if(m_iRadioGroupOrientation == 0)
-                        {
-                            radGrp.Orientation = Android.Widget.Orientation.Horizontal;
-                        }
-                        else
-                        {
-                            radGrp.Orientation = Android.Widget.Orientation.Vertical;
-                        }
 
                         m_sRadioGroupValues = m_sRadioGroupValues.Trim();
                         if (m_sRadioGroupValues.EndsWith(";"))
@@ -954,6 +1118,23 @@ namespace appBusinessFormBuilder
                             m_sRadioGroupLabels = m_sRadioGroupLabels.Substring(0, m_sRadioGroupLabels.Length - 1);
                         }
                         string[] sLabels = m_sRadioGroupLabels.Split(';');
+                        int iNoOfValues = sValues.Length;
+                        if(iNoOfValues == 0)
+                        {
+                            iNoOfValues = 1;
+                        }
+                        int iWidthRadBtn = (m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell));
+                        int iHeightRadBtn = m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell);
+                        if(m_iRadioGroupOrientation == 0)
+                        {
+                            radGrp.Orientation = Android.Widget.Orientation.Horizontal;
+                            iWidthRadBtn = iWidthRadBtn / iNoOfValues;
+                        }
+                        else
+                        {
+                            radGrp.Orientation = Android.Widget.Orientation.Vertical;
+                            iHeightRadBtn = iHeightRadBtn / iNoOfValues;
+                        }
 
                         for (int i = 0; i < sValues.Length; i++)
                         {
@@ -964,21 +1145,57 @@ namespace appBusinessFormBuilder
                                 sLabelRad = sLabels[i];
                             }
                             radBtn.Text = sLabelRad;
-                            radBtn.SetTextColor(Android.Graphics.Color.Black);
+                            radBtn.SetTextColor(m_TextColor);
                             radBtn.SetTypeface(m_Typeface, m_TypefaceStyle);
+                            radBtn.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
                             radBtn.SetBackgroundColor(m_BackgroundColor);
                             radBtn.SetHighlightColor(m_RadioGroupHighlightColor);
-                            radBtn.Id = m_cellid + 100 + (i + 1);
+//                            radBtn.SetPadding(-4, -4, -4, -4);
+                            radBtn.SetWidth(iWidthRadBtn);
+                            radBtn.Id = m_cellid + 200 + (i + 1);
                             switch (m_sAlign)
                             {
                                 case "Left":
-                                    radBtn.Gravity = GravityFlags.Left;
+                                    switch (m_sVertAlign)
+                                    {
+                                        case "Top":
+                                            radBtn.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                            break;
+                                        case "Center":
+                                            radBtn.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                            break;
+                                        case "Bottom":
+                                            radBtn.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                            break;
+                                    }
                                     break;
                                 case "Center":
-                                    radBtn.Gravity = GravityFlags.Center;
+                                    switch (m_sVertAlign)
+                                    {
+                                        case "Top":
+                                            radBtn.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                            break;
+                                        case "Center":
+                                            radBtn.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                            break;
+                                        case "Bottom":
+                                            radBtn.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                            break;
+                                    }
                                     break;
                                 case "Right":
-                                    radBtn.Gravity = GravityFlags.Right;
+                                    switch (m_sVertAlign)
+                                    {
+                                        case "Top":
+                                            radBtn.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                            break;
+                                        case "Center":
+                                            radBtn.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                            break;
+                                        case "Bottom":
+                                            radBtn.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                            break;
+                                    }
                                     break;
                             }
 
@@ -992,12 +1209,8 @@ namespace appBusinessFormBuilder
 
                         radGrp.Id = m_cellid + 100;
                         radGrp.SetBackgroundColor(m_BackgroundColor);
-                        radGrp.SetPadding(2, 2, 2, 2);
                         radGrp.LayoutParameters = paramsRad;
-                        //ViewGroup.LayoutParams lpRad = radGrp.LayoutParameters;
-                        ////lpRad.Width = m_width - ConvertPixelsToDp(fExtraPadding);
-                        //lpRad.Height = m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell);
-                        //radGrp.LayoutParameters = lpRad;
+                        radGrp.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
                         radGrp.SetGravity(GravityFlags.Center);
                         if (m_iBuildType == 1)
                         {

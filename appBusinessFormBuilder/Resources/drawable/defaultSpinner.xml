@@ -13,5 +13,6 @@
       <solid android:color="@color/white"/>
     </shape>
   </item>
-  <item android:gravity="bottom|right" android:drawable="@drawable/spinner_default_arrow2"></item>
+  <item android:gravity="center_horizontal|right"
+        android:drawable="@drawable/spinner_default_arrow2"></item>
 </layer-list>

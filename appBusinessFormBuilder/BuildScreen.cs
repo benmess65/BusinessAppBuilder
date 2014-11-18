@@ -15,6 +15,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.Graphics;
+using Android.Util;
 
 namespace appBusinessFormBuilder
 {
@@ -39,7 +40,6 @@ namespace appBusinessFormBuilder
         ArrayList garrDBRecords;
         ArrayList garrDBColumns;
         ArrayList garrDBValues;
-        int giRepeatableRecords = 15;
         int giTotalRecords = 0;
         int giRecordsPerPage = 0;
         int giDetailRows = 0;
@@ -47,6 +47,7 @@ namespace appBusinessFormBuilder
         int giTopLeftGridItemWidth = -1;
         int giDefaultColWidth = 150;
         int giSectionButtonWidth = 50;
+        int giNavBarsWidth = 0;
 
 
         //Tasks
@@ -103,15 +104,17 @@ namespace appBusinessFormBuilder
         int iHeaderSectionContainerId = 1000400; //This is the ID for a container to hold the grid
         int iDetailSectionId = 1000500; //Allow 100 possible items in the settings for the header, detail and footer sections
         int iDetailSectionContainerId = 1000600; //This is the ID for a container to hold the grid
-        int iFooterSectionId = 1000700; //Allow 100 possible items in the settings for the header, detail and footer sections
-        int iFooterSectionContainerId = 1000800; //This is the ID for a container to hold the grid
+        int iDetailSectionNavBarContainerId = 1000700; //This is the ID for a container to hold the page nav bar
+        int iDetailSectionNavBarContainerId2 = 1000701; //This is the ID for a container to hold the recordnav bar
+        int iFooterSectionId = 1000800; //Allow 100 possible items in the settings for the header, detail and footer sections
+        int iFooterSectionContainerId = 1000900; //This is the ID for a container to hold the grid
 
-        int iHeaderRowSectionId = 1000900; //Allow 100 possible items in the settings for the header row
-        int iHeaderColumnSectionId = 1001000; //Allow 100 possible items in the settings for the header column
-        int iDetailRowSectionId = 1001100; //Allow 100 possible items in the settings for the detail row
-        int iDetailColumnSectionId = 1001200; //Allow 100 possible items in the settings for the detail column
-        int iFooterRowSectionId = 1001300; //Allow 100 possible items in the settings for the footer row
-        int iFooterColumnSectionId = 1001400; //Allow 100 possible items in the settings for the footer column
+        int iHeaderRowSectionId = 1001000; //Allow 100 possible items in the settings for the header row
+        int iHeaderColumnSectionId = 1001100; //Allow 100 possible items in the settings for the header column
+        int iDetailRowSectionId = 1001200; //Allow 100 possible items in the settings for the detail row
+        int iDetailColumnSectionId = 1001300; //Allow 100 possible items in the settings for the detail column
+        int iFooterRowSectionId = 1001400; //Allow 100 possible items in the settings for the footer row
+        int iFooterColumnSectionId = 1001500; //Allow 100 possible items in the settings for the footer column
 
 
         //Each row add 100,000 and each column add 1,000 and each record add 1, using a base of 1 (NOT zero). The zero base is the table or the row or the column, with columns being a dummy row 100.
@@ -340,6 +343,16 @@ namespace appBusinessFormBuilder
 //                rowContainer.SetBackgroundColor(Android.Graphics.Color.DarkSlateGray);
                 rowContainerDetail.SetMinimumHeight(ConvertPixelsToDp(30));
                 table.AddView(rowContainerDetail);
+
+                TableRow rowNavBarDetail = new TableRow(context);
+                rowNavBarDetail.Id = iDetailSectionNavBarContainerId;
+                rowNavBarDetail.SetMinimumHeight(ConvertPixelsToDp(30));
+                table.AddView(rowNavBarDetail);
+
+                TableRow rowNavBarDetail2 = new TableRow(context);
+                rowNavBarDetail2.Id = iDetailSectionNavBarContainerId2;
+                rowNavBarDetail2.SetMinimumHeight(ConvertPixelsToDp(30));
+                table.AddView(rowNavBarDetail2);
 
                 /*************************************************************/
                 /*                      FOOTER SECTION                       */
@@ -2063,19 +2076,29 @@ namespace appBusinessFormBuilder
 
                     }
 
+                    if (tableExists == null)
+                    {
+                        tableContainer.AddView(table1, params1);
+                    }
+
                     //Now build the page navigation bar if required
+                    TableRow tableNavBarContainer = (TableRow)FindViewById(iDetailSectionNavBarContainerId);
                     if (bNavBarPage)
                     {
-                        TableRow rowNav = new TableRow(this_context);
-                        rowNav.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNav.SetMinimumHeight(ConvertPixelsToDp(30f));
-                        rowNav.Id = iDetailSectionPageNavigationRowId;
+                        giNavBarsWidth = 0;
+
+                        //TableRow rowNav = new TableRow(this_context);
+                        //rowNav.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                        //rowNav.SetMinimumHeight(ConvertPixelsToDp(30f));
+                        //rowNav.Id = iDetailSectionPageNavigationRowId;
 
                         //Put in another table so the widths can be different
                         TableLayout tableNav = new TableLayout(this_context);
+                        tableNav.Id = iDetailSectionPageNavigationRowId;
                         TableRow.LayoutParams params2 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
                         params2.SetMargins(0, 0, 0, 0);
-                        params2.Span = iCols;
+
+//                        params2.Span = iCols;
 
                         TableRow.LayoutParams params3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
                         params3.SetMargins(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
@@ -2107,6 +2130,7 @@ namespace appBusinessFormBuilder
                             btnFirstPage.Enabled = true;
                         }
                         rowNav1.AddView(btnFirstPage, params3);
+                        giNavBarsWidth += 30;
 
                         Button btnPrevPage = new Button(this_context);
                         btnPrevPage.Text = "<";
@@ -2127,6 +2151,7 @@ namespace appBusinessFormBuilder
                             btnPrevPage.Enabled = true;
                         }
                         rowNav1.AddView(btnPrevPage, params3);
+                        giNavBarsWidth += 30;
 
                         TextView lblPage = new TextView(this_context);
                         lblPage.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
@@ -2137,6 +2162,7 @@ namespace appBusinessFormBuilder
                         lblPage.SetTextColor(Android.Graphics.Color.Black);
                         lblPage.SetBackgroundColor(Android.Graphics.Color.Wheat);
                         rowNav1.AddView(lblPage, params3);
+                        giNavBarsWidth += 60;
 
                         EditText txtEditPageNo = (EditText)LayoutInflater.Inflate(Resource.Layout.textbox, null);
                         txtEditPageNo.Text = iPageNo.ToString();
@@ -2147,6 +2173,7 @@ namespace appBusinessFormBuilder
                         txtEditPageNo.SetHeight(ConvertPixelsToDp(28));
                         txtEditPageNo.SetSingleLine(true);
                         rowNav1.AddView(txtEditPageNo, params3);
+                        giNavBarsWidth += 60;
 
                         TextView lblTotalPage = new TextView(this_context);
                         lblTotalPage.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
@@ -2157,6 +2184,7 @@ namespace appBusinessFormBuilder
                         lblTotalPage.SetTextColor(Android.Graphics.Color.Black);
                         lblTotalPage.SetBackgroundColor(Android.Graphics.Color.Wheat);
                         rowNav1.AddView(lblTotalPage, params3);
+                        giNavBarsWidth += 60;
 
                         Button btnGoToPage = new Button(this_context);
                         btnGoToPage.Text = "Go To Page";
@@ -2168,6 +2196,7 @@ namespace appBusinessFormBuilder
                         btnGoToPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
                         btnGoToPage.Click += (sender, args) => { GoToPage(sender, args); }; ;
                         rowNav1.AddView(btnGoToPage, params3);
+                        giNavBarsWidth += 60;
 
                         Button btnNextPage = new Button(this_context);
                         btnNextPage.Text = ">";
@@ -2188,7 +2217,7 @@ namespace appBusinessFormBuilder
                             btnNextPage.Enabled = true;
                         }
                         rowNav1.AddView(btnNextPage, params3);
-
+                        giNavBarsWidth += 30;
 
                         Button btnLastPage = new Button(this_context);
                         btnLastPage.Text = ">>";
@@ -2209,26 +2238,34 @@ namespace appBusinessFormBuilder
                             btnLastPage.Enabled = true;
                         }
                         rowNav1.AddView(btnLastPage, params3);
-
+                        giNavBarsWidth += 30;
 
                         tableNav.AddView(rowNav1);
-                        rowNav.AddView(tableNav, params2);
-                        table1.AddView(rowNav);
+                        tableNavBarContainer.AddView(tableNav, params2);
+//                        table1.AddView(rowNav);
+                    }
+                    else
+                    {
+                        TableLayout parent = (TableLayout)tableNavBarContainer.Parent;
+                        parent.RemoveView(tableNavBarContainer);
                     }
 
                     //Now build the Record navigation bar if required
+                    TableRow tableNavBarContainer2 = (TableRow)FindViewById(iDetailSectionNavBarContainerId2);
                     if (bNavBarRecord)
                     {
-                        TableRow rowNavRec = new TableRow(this_context);
-                        rowNavRec.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNavRec.SetMinimumHeight(ConvertPixelsToDp(30f));
-                        rowNavRec.Id = iDetailSectionRecordNavigationRowId;
+                        giNavBarsWidth = 0;
+                        //TableRow rowNavRec = new TableRow(this_context);
+                        //rowNavRec.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                        //rowNavRec.SetMinimumHeight(ConvertPixelsToDp(30f));
+                        //rowNavRec.Id = iDetailSectionRecordNavigationRowId;
 
                         //Put in another table so the widths can be different
                         TableLayout tableNavRec = new TableLayout(this_context);
+                        tableNavRec.Id = iDetailSectionRecordNavigationRowId;
                         TableRow.LayoutParams paramsRec2 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
                         paramsRec2.SetMargins(0, 0, 0, 0);
-                        paramsRec2.Span = iCols;
+                        //                        paramsRec2.Span = iCols;
 
                         TableRow.LayoutParams paramsRec3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
                         paramsRec3.SetMargins(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
@@ -2259,6 +2296,7 @@ namespace appBusinessFormBuilder
                             btnFirstRecord.Enabled = true;
                         }
                         rowNav1Rec.AddView(btnFirstRecord, paramsRec3);
+                        giNavBarsWidth += 30;
 
                         Button btnPrevRecord = new Button(this_context);
                         btnPrevRecord.Text = "<";
@@ -2278,6 +2316,7 @@ namespace appBusinessFormBuilder
                             btnPrevRecord.Enabled = true;
                         }
                         rowNav1Rec.AddView(btnPrevRecord, paramsRec3);
+                        giNavBarsWidth += 30;
 
                         TextView lblRecord = new TextView(this_context);
                         lblRecord.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
@@ -2288,6 +2327,7 @@ namespace appBusinessFormBuilder
                         lblRecord.SetTextColor(Android.Graphics.Color.Black);
                         lblRecord.SetBackgroundColor(Android.Graphics.Color.Wheat);
                         rowNav1Rec.AddView(lblRecord, paramsRec3);
+                        giNavBarsWidth += 60;
 
                         TextView lblRecordHidden = new TextView(this_context);
                         lblRecordHidden.Text = iRecordNo.ToString();
@@ -2304,6 +2344,7 @@ namespace appBusinessFormBuilder
                         txtEditRecordNo.SetHeight(ConvertPixelsToDp(28));
                         txtEditRecordNo.SetSingleLine(true);
                         rowNav1Rec.AddView(txtEditRecordNo, paramsRec3);
+                        giNavBarsWidth += 60;
 
                         TextView lblTotalRecord = new TextView(this_context);
                         lblTotalRecord.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
@@ -2314,6 +2355,7 @@ namespace appBusinessFormBuilder
                         lblTotalRecord.SetTextColor(Android.Graphics.Color.Black);
                         lblTotalRecord.SetBackgroundColor(Android.Graphics.Color.Wheat);
                         rowNav1Rec.AddView(lblTotalRecord, paramsRec3);
+                        giNavBarsWidth += 60;
 
                         Button btnGoToRecord = new Button(this_context);
                         btnGoToRecord.Text = "Go To Record";
@@ -2325,6 +2367,7 @@ namespace appBusinessFormBuilder
                         btnGoToRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
                         btnGoToRecord.Click += (sender, args) => { GoToRecord(sender, args); }; ;
                         rowNav1Rec.AddView(btnGoToRecord, paramsRec3);
+                        giNavBarsWidth += 60;
 
                         Button btnNextRecord = new Button(this_context);
                         btnNextRecord.Text = ">";
@@ -2344,7 +2387,7 @@ namespace appBusinessFormBuilder
                             btnNextRecord.Enabled = true;
                         }
                         rowNav1Rec.AddView(btnNextRecord, paramsRec3);
-
+                        giNavBarsWidth += 30;
 
                         Button btnLastRecord = new Button(this_context);
                         btnLastRecord.Text = ">>";
@@ -2364,20 +2407,18 @@ namespace appBusinessFormBuilder
                             btnLastRecord.Enabled = true;
                         }
                         rowNav1Rec.AddView(btnLastRecord, paramsRec3);
-
+                        giNavBarsWidth += 30;
 
                         tableNavRec.AddView(rowNav1Rec);
-                        rowNavRec.AddView(tableNavRec, paramsRec2);
-                        table1.AddView(rowNavRec);
+                        tableNavBarContainer2.AddView(tableNavRec, paramsRec2);
+                        //                        table1.AddView(rowNavRec);
+                    }
+                    else
+                    {
+                        TableLayout parent2 = (TableLayout)tableNavBarContainer2.Parent;
+                        parent2.RemoveView(tableNavBarContainer2);
                     }
 
-                    if (tableExists == null)
-                    {
-                        this.RunOnUiThread(() =>
-                        {
-                            tableContainer.AddView(table1, params1);
-                        });
-                    }
                 }
             }
             catch (Exception ex)
@@ -2410,6 +2451,7 @@ namespace appBusinessFormBuilder
             int i;
             int k;
             int iBorderLeft = 0, iBorderTop = 0, iBorderRight = 0, iBorderBottom = 0;
+            int iTextPaddingLeft = 0, iTextPaddingTop = 0, iTextPaddingRight = 0, iTextPaddingBottom = 0;
             int iColSpan = 1;
             int iColSectionId = -1;
             int iColWidthSpan = 0;
@@ -2419,6 +2461,8 @@ namespace appBusinessFormBuilder
             string sBoundColumn = "";
             string sTotalRows = "";
             int iTotalRows = 1;
+            string sItalic = "Yes";
+            string sBold = "No";
 
             if (iItemType == (int)SectionType.GridItem)
             {
@@ -2712,9 +2756,99 @@ namespace appBusinessFormBuilder
                                 bv.SetRadioGroupValues(arrParameterValue[i].ToString());
                             }
                         }
+
+                        if (arrParameterName[i].ToString() == "TextAlign")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                bv.SetTextAlignment(arrParameterValue[i].ToString());
+                            }
+                        }
+
+                        if (arrParameterName[i].ToString() == "TextVertAlignment")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                bv.SetTextVerticalAlignment(arrParameterValue[i].ToString());
+                            }
+                        }
+
+                        if (arrParameterName[i].ToString() == "Font")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                bv.SetTextFont(arrParameterValue[i].ToString());
+                            }
+                        }
+
+                        if (arrParameterName[i].ToString() == "Italic")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                sItalic = arrParameterValue[i].ToString();
+                            }
+                        }
+
+                        if (arrParameterName[i].ToString() == "Bold")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                sBold = arrParameterValue[i].ToString();
+                            }
+                        }
+
+                        if (arrParameterName[i].ToString() == "FontSize")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                string sFontSize = arrParameterValue[i].ToString();
+                                sFontSize = sFontSize.Replace("pt", "");
+                                if (utils.IsNumeric(sFontSize))
+                                {
+                                    bv.SetTextSize(Convert.ToInt32(sFontSize));
+                                }
+                            }
+                        }
+
+                        if (arrParameterName[i].ToString() == "TextPaddingLeft")
+                        {
+                            iTextPaddingLeft = Convert.ToInt32(arrParameterValue[i].ToString().Replace("px", ""));
+                        }
+
+                        if (arrParameterName[i].ToString() == "TextPaddingRight")
+                        {
+                            iTextPaddingRight = Convert.ToInt32(arrParameterValue[i].ToString().Replace("px", ""));
+                        }
+
+                        if (arrParameterName[i].ToString() == "TextPaddingTop")
+                        {
+                            iTextPaddingTop = Convert.ToInt32(arrParameterValue[i].ToString().Replace("px", ""));
+                        }
+
+                        if (arrParameterName[i].ToString() == "TextPaddingBottom")
+                        {
+                            iTextPaddingBottom = Convert.ToInt32(arrParameterValue[i].ToString().Replace("px", ""));
+                        }
+
+                        if (arrParameterName[i].ToString() == "Orientation")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                string sOrientation = arrParameterValue[i].ToString();
+                                int iOrientation = 0;
+                                if (sOrientation == "Vertical")
+                                {
+                                    iOrientation = 1;
+                                }
+                                bv.SetRadioGroupOrientation(iOrientation);
+                            }
+                        }
+
                     }
 
                     bv.SetCellPadding(iBorderLeft, iBorderTop, iBorderRight, iBorderBottom);
+                    bv.SetTextPadding(iTextPaddingLeft, iTextPaddingTop, iTextPaddingRight, iTextPaddingBottom);
+                    bv.SetTextStyle(sBold, sItalic);
 
                     //If we are spanning columns we have to get the full width
                     for (i = 1; i < iColSpan; i++)
@@ -2946,6 +3080,7 @@ namespace appBusinessFormBuilder
         {
             clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
             AndroidUtils.ColorClass clsColor = new AndroidUtils.ColorClass();
+            clsLocalUtils utils = new clsLocalUtils();
             string sRtnMsg = "";
             Spinner cmbBox = (Spinner)sender;
             TextView cmbMain = (TextView)cmbBox.GetChildAt(0);
@@ -2958,9 +3093,105 @@ namespace appBusinessFormBuilder
                 string sBackgroundColor = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "BackgroundColor", ref sRtnMsg);
                 Color clr = clsColor.GetColor(sBackgroundColor, (int)AndroidUtils.ColorType.Background);
                 cmbMain.SetBackgroundColor(clr);
+                cmbMain.SetSingleLine(true);
+//                cmbMain.SetWidth(cmbBox.Width - 30);
+//                cmbMain.SetHeight(cmbBox.Height - 10); //This has to be dynamic
                 string sTextColor = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextColor", ref sRtnMsg);
                 Color clr2 = clsColor.GetColor(sTextColor, (int)AndroidUtils.ColorType.Text);
                 cmbMain.SetTextColor(clr2);
+                string sFont = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "Font", ref sRtnMsg);
+                string sBold = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "Bold", ref sRtnMsg);
+                string sItalic = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "Italic", ref sRtnMsg);
+                string sTextsize = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "FontSize", ref sRtnMsg);
+                sTextsize = sTextsize.Replace("pt", "");
+                int iTextSize = 12;
+                if (utils.IsNumeric(sTextsize))
+                {
+                    iTextSize = Convert.ToInt32(sTextsize);
+                }
+
+                AndroidUtils.TextTypeFaceClass typeface = new AndroidUtils.TextTypeFaceClass();
+                Typeface  typFace = typeface.GetTypeface(sFont);
+                TypefaceStyle typfaceStyle = typeface.GetTextStyle(sBold, sItalic);
+                cmbMain.SetTypeface(typFace, typfaceStyle);
+                cmbMain.SetTextSize(Android.Util.ComplexUnitType.Pt, iTextSize);
+                string sAlign = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextAlign", ref sRtnMsg);
+                string sVertAlign = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextVertAlignment", ref sRtnMsg);
+                switch (sAlign)
+                {
+                    case "Left":
+                        switch (sVertAlign)
+                        {
+                            case "Top":
+                                cmbMain.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                break;
+                            case "Center":
+                                cmbMain.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                break;
+                            case "Bottom":
+                                cmbMain.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                break;
+                        }
+                        break;
+                    case "Center":
+                        switch (sVertAlign)
+                        {
+                            case "Top":
+                                cmbMain.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                break;
+                            case "Center":
+                                cmbMain.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                break;
+                            case "Bottom":
+                                cmbMain.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                break;
+                        }
+                        break;
+                    case "Right":
+                        switch (sVertAlign)
+                        {
+                            case "Top":
+                                cmbMain.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                break;
+                            case "Center":
+                                cmbMain.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                break;
+                            case "Bottom":
+                                cmbMain.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                break;
+                        }
+                        break;
+                }
+                string sLeft = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextPaddingLeft", ref sRtnMsg);
+                string sTop = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextPaddingTop", ref sRtnMsg);
+                string sRight = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextPaddingRight", ref sRtnMsg);
+                string sBottom = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextPaddingBottom", ref sRtnMsg);
+
+                int iLeftPaddingText = 2;
+                if (utils.IsNumeric(sLeft))
+                {
+                    iLeftPaddingText = Convert.ToInt32(sLeft);
+                }
+
+                int iTopPaddingText = 2;
+                if (utils.IsNumeric(sTop))
+                {
+                    iTopPaddingText = Convert.ToInt32(sTop);
+                }
+
+                int iRightPaddingText = 2;
+                if (utils.IsNumeric(sRight))
+                {
+                    iRightPaddingText = Convert.ToInt32(sRight);
+                }
+
+                int iBottomPaddingText = 2;
+                if (utils.IsNumeric(sBottom))
+                {
+                    iBottomPaddingText = Convert.ToInt32(sBottom);
+                }
+                
+                cmbMain.SetPadding(ConvertPixelsToDp(iLeftPaddingText), ConvertPixelsToDp(iTopPaddingText), ConvertPixelsToDp(iRightPaddingText), ConvertPixelsToDp(iBottomPaddingText));
             }
             return;
         }
@@ -3428,7 +3659,7 @@ namespace appBusinessFormBuilder
                 if (iPageNo > 0)
                 {
                     int iRecordNo = 0;
-                    iRecordNo = giTotalRecords - (iPageNo - 1) * giRecordsPerPage;
+                    iRecordNo = (iPageNo - 1) * giRecordsPerPage + 1;
                     OpenDetailPage(iPageNo, iRecordNo);
                 }
                 else
@@ -3613,6 +3844,24 @@ namespace appBusinessFormBuilder
 
         public void OpenDetailPage(int iPageNo, int iRecordNo)
         {
+
+            //Also remove the nav bars
+            TableRow tableContainerNavBar = (TableRow)FindViewById(iDetailSectionNavBarContainerId);
+            TableLayout tableExistsNavBar = (TableLayout)FindViewById(iDetailSectionPageNavigationRowId);
+
+            if (tableContainerNavBar != null)
+            {
+                tableContainerNavBar.RemoveView(tableExistsNavBar);
+            }
+
+            TableRow tableContainerNavBar2 = (TableRow)FindViewById(iDetailSectionNavBarContainerId2);
+            TableLayout tableExistsNavBar2 = (TableLayout)FindViewById(iDetailSectionRecordNavigationRowId);
+
+            if (tableContainerNavBar2 != null)
+            {
+                tableContainerNavBar2.RemoveView(tableExistsNavBar2);
+            }
+
             //Find the main table in the detail section
             TableRow tableContainer = (TableRow)FindViewById(iDetailSectionContainerId);
             TableLayout tableExists = (TableLayout)FindViewById(iDetailSectionTableId);
@@ -3622,6 +3871,7 @@ namespace appBusinessFormBuilder
                 tableContainer.RemoveView(tableExists);
                 InsertTable((int)SectionType.Detail, iPageNo, iRecordNo);
             }
+
 
         }
 
@@ -3681,7 +3931,6 @@ namespace appBusinessFormBuilder
                     if (bItemFound)
                     {
                         //Make sure we break right out of the outer loop
-
                         break;
                     }
                 }
@@ -3835,6 +4084,7 @@ namespace appBusinessFormBuilder
 
         public void SetHorizontalScrollWidth()
         {
+            int iScreenWidth = GetScreenWidthPixels();
             int iWidthInDp= 0;
             int iWidthInDpHdr = GetWidthOfSectionInDp((int)SectionType.Header);
             int iWidthInDpDet = GetWidthOfSectionInDp((int)SectionType.Detail);
@@ -3853,6 +4103,17 @@ namespace appBusinessFormBuilder
                 iWidthInDp = iWidthInDpFtr;
             }
             iWidthInDp += 10;
+
+            if (iScreenWidth > iWidthInDp)
+            {
+                iWidthInDp = iScreenWidth;
+            }
+
+            if (giNavBarsWidth > iWidthInDp)
+            {
+                iWidthInDp = giNavBarsWidth;
+            }
+            
             TextView txtForm = (TextView)FindViewById(iFormLabelId);
             if (txtForm != null)
             {
@@ -3892,13 +4153,22 @@ namespace appBusinessFormBuilder
             object result = null;
             Methods c = new Methods();
 
-            //The result should always be a string. Empty string means success otherwise show as an alert
-            result = info.Invoke(null, objParams);
-
-            if (result.ToString() != "")
+            if (info != null)
             {
-                alert.SetAlertMessage(result.ToString());
+                //The result should always be a string. Empty string means success otherwise show as an alert
+                result = info.Invoke(null, objParams);
+
+                if (result.ToString() != "")
+                {
+                    alert.SetAlertMessage(result.ToString());
+                    this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                }
+            }
+            else
+            {
+                alert.SetAlertMessage("Method " + sMethodName + " does not exist.");
                 this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+
             }
 
         }
