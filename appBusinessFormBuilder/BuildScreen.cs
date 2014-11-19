@@ -236,7 +236,7 @@ namespace appBusinessFormBuilder
                         btnForm.SetBackgroundResource(Resource.Drawable.DetailButton);
                         btnForm.SetWidth(ConvertPixelsToDp(iButtonWidth));
                         btnForm.SetHeight(ConvertPixelsToDp(30));
-                        btnForm.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Form); }; ;
+                        btnForm.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Form); };
 
                         rowForm.AddView(btnForm);
                     }
@@ -953,6 +953,7 @@ namespace appBusinessFormBuilder
 
         public void DialogTextOnBlur(object sender, EventArgs e, string sMethodName)
         {
+
             EditText txt = (EditText)sender;
 
             if (!txt.HasFocus)
@@ -960,8 +961,10 @@ namespace appBusinessFormBuilder
                 object[] objTextEdit = new object[2];
                 objTextEdit[0] = giFormId;
                 objTextEdit[1] = sender;
-                sMethodName = sMethodName.Substring(0, sMethodName.IndexOf("("));
-                InvokeStringMethod(sMethodName, objTextEdit);
+                //sMethodName = sMethodName.Substring(0, sMethodName.IndexOf("("));
+                //sMethodName = sMethodName + "()";
+                Evaluate(sender, e, sMethodName);
+                //                InvokeStringMethod(sMethodName, objTextEdit);
             }
         }
 
@@ -4145,6 +4148,35 @@ namespace appBusinessFormBuilder
             this.StartActivity(bldScreen);
         }
 
+        public void Evaluate(object sender, EventArgs e, string sMethodName)
+        {
+            try
+            {
+                // Evaluate the current expression
+                Eval eval = new Eval();
+//                List<string> tokens = eval.TokenizeExpression(sMethodName);
+                string testEval = "GetRecordId(1, 12, 19) + GetRecordId(1, 12, 19)";
+
+//                FunctionEventArgs funce = new FunctionEventArgs();
+//                btnForm.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Form); }; ;
+                eval.ProcessFunction += (send, funce) => { ProcessFunction(sender, funce); };
+                double dblResult = eval.Execute(testEval);
+                string sResult = eval.sResultAsString;
+            }
+            catch (EvalException ex)
+            {
+                alert.SetAlertMessage(ex.Message.ToString());
+                this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+            }
+            catch (Exception ex)
+            {
+                alert.SetAlertMessage(ex.Message.ToString());
+                this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+            }
+
+        }
+
+
         public void InvokeStringMethod(string sMethodName, object[] objParams)
         {
             // Get MethodInfo.
@@ -4172,12 +4204,73 @@ namespace appBusinessFormBuilder
             }
 
         }
+
+        // Implement expression functions
+        protected void ProcessFunction(object sender, FunctionEventArgs e)
+        {
+            Methods mths = new Methods();
+
+            if (String.Compare(e.Name, "abs", true) == 0)
+            {
+                if (e.Parameters.Count == 1)
+                {
+                    e.Result = Math.Abs(e.Parameters[0]);
+                    e.ResultString = e.Result.ToString();
+                }
+                else
+                    e.Status = FunctionStatus.WrongParameterCount;
+            }
+            else if (String.Compare(e.Name, "pow", true) == 0)
+            {
+                if (e.Parameters.Count == 2)
+                {
+                    e.Result = Math.Pow(e.Parameters[0], e.Parameters[1]);
+                    e.ResultString = e.Result.ToString();
+                }
+                else
+                    e.Status = FunctionStatus.WrongParameterCount;
+            }
+            else if (String.Compare(e.Name, "round", true) == 0)
+            {
+                if (e.Parameters.Count == 1)
+                {
+                    e.Result = Math.Round(e.Parameters[0]);
+                    e.ResultString = e.Result.ToString();
+                }
+                else
+                    e.Status = FunctionStatus.WrongParameterCount;
+            }
+            else if (String.Compare(e.Name, "sqrt", true) == 0)
+            {
+                if (e.Parameters.Count == 1)
+                {
+                    e.Result = Math.Sqrt(e.Parameters[0]);
+                    e.ResultString = e.Result.ToString();
+                }
+                else
+                    e.Status = FunctionStatus.WrongParameterCount;
+            }
+            else if (String.Compare(e.Name, "CheckColumnSpan", true) == 0)
+            {
+                object[] objTextEdit = new object[2];
+                objTextEdit[0] = giFormId;
+                objTextEdit[1] = sender;
+                e.Result = 0;
+                e.ResultString = mths.CheckColumnSpan(giFormId, sender);
+            }
+            else if (String.Compare(e.Name, "GetRecordId", true) == 0)
+            {
+                e.Result = mths.GetRecordId(Convert.ToInt32(e.ParametersString[0]), Convert.ToInt32(e.ParametersString[1]), Convert.ToInt32(e.ParametersString[2]));
+                e.ResultString = mths.GetRecordId(Convert.ToInt32(e.ParametersString[0]), Convert.ToInt32(e.ParametersString[1]), Convert.ToInt32(e.ParametersString[2])).ToString();
+            }
+            // Unknown function name
+            else e.Status = FunctionStatus.UndefinedFunction;
+        }
     }
 
     public class Methods
     {
-
-        public static string CheckColumnSpan(int iFormId, object obj) //
+        public string CheckColumnSpan(int iFormId, object obj) //
         {
             int iColSpan = 1;
             string sRtnMsg = "";
@@ -4188,6 +4281,11 @@ namespace appBusinessFormBuilder
             clsLocalUtils utils = new clsLocalUtils();
             int iTotalCols = 99;
             int iColSectionId = 0;
+            //Eval eval = new Eval();
+            //string testEval = "abs(42 / 4.1 * 18.3)";
+
+            ////eval.ProcessFunction += ProcessFunction;
+            //double dblResult = eval.Execute(testEval);
 
             if (obj.GetType().Name == "EditText")
             {
@@ -4255,5 +4353,10 @@ namespace appBusinessFormBuilder
             return "";
         }
 
+        public int GetRecordId(int iSection, int iRow, int iCol)
+        {
+            int iRecord = 144;
+            return iRecord;
+        }
     }
 }
