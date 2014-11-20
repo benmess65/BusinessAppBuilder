@@ -701,6 +701,11 @@ namespace appBusinessFormBuilder
                 SetColor(sColor, (int)ColorType.Gridlines);
             }
 
+            public void SetTextColor(string sColor)
+            {
+                SetColor(sColor, (int)ColorType.Text);
+            }
+
             public void SetRadioGroupHighlightColor(string sColor)
             {
                 SetColor(sColor, (int)ColorType.Gridlines);
@@ -1212,6 +1217,8 @@ namespace appBusinessFormBuilder
                         radGrp.LayoutParameters = paramsRad;
                         radGrp.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
                         radGrp.SetGravity(GravityFlags.Center);
+                        radGrp.Focusable = true;
+                        radGrp.FocusableInTouchMode = true;
                         if (m_iBuildType == 1)
                         {
                             radGrp.Enabled = false;
@@ -1271,6 +1278,11 @@ namespace appBusinessFormBuilder
             public Spinner GetCellDropdownView()
             {
                 return m_Spinner;
+            }
+
+            public RadioGroup GetCellRadioGroupView()
+            {
+                return m_RadGrp;
             }
 
             private int ConvertPixelsToDp(float pixelValue)

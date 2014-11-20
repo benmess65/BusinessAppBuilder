@@ -10,6 +10,7 @@
   <integer name="CellColumnId">-1</integer>
   <integer name="CellId">-1</integer>
   <integer name="FormId">-1</integer>
+  <string name="OnBlurMethodName">""</string>
 
 
 </resources>

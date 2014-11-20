@@ -262,6 +262,9 @@ namespace appBusinessFormBuilder
 			// aapt resource value: 0x7f050000
 			public const int Hello = 2131034112;
 			
+			// aapt resource value: 0x7f050003
+			public const int OnBlurMethodName = 2131034115;
+			
 			static String()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
