@@ -157,11 +157,128 @@ namespace appBusinessFormBuilder
                     case "Deep Pink":
                         color = Color.DeepPink;
                         break;
+                    case "Ghost White":
+                        color = Color.GhostWhite;
+                        break;
+                    case "Gold":
+                        color = Color.Gold;
+                        break;
+                    case "Gray":
+                        color = Color.Gray;
+                        break;
+                    case "Green":
+                        color = Color.Green;
+                        break;
+                    case "Hot Pink":
+                        color = Color.HotPink;
+                        break;
+                    case "Indigo":
+                        color = Color.Indigo;
+                        break;
+                    case "Lavender":
+                        color = Color.Lavender;
+                        break;
+                    case "Light Blue":
+                        color = Color.LightBlue;
+                        break;
+                    case "Light Cyan":
+                        color = Color.LightCyan;
+                        break;
+                    case "Light Gray":
+                        color = Color.LightGray;
+                        break;
+                    case "LightGreen":
+                        color = Color.LightGreen;
+                        break;
+                    case "Light Pink":
+                        color = Color.LightPink;
+                        break;
+                    case "Light Yellow":
+                        color = Color.LightYellow;
+                        break;
                     case "Lime":
                         color = Color.Lime;
                         break;
+                    case "Magenta":
+                        color = Color.Magenta;
+                        break;
+                    case "Maroon":
+                        color = Color.Maroon;
+                        break;
+                    case "Navy":
+                        color = Color.Navy;
+                        break;
+                    case "Olive":
+                        color = Color.Olive;
+                        break;
+                    case "Orange":
+                        color = Color.Orange;
+                        break;
+                    case "Pale Green":
+                        color = Color.PaleGreen;
+                        break;
+                    case "Pink":
+                        color = Color.Pink;
+                        break;
+                    case "Plum":
+                        color = Color.Plum;
+                        break;
+                    case "Purple":
+                        color = Color.Purple;
+                        break;
+                    case "Red":
+                        color = Color.Red;
+                        break;
+                    case "Royal Blue":
+                        color = Color.RoyalBlue;
+                        break;
+                    case "Salmon":
+                        color = Color.Salmon;
+                        break;
+                    case "Silver":
+                        color = Color.Silver;
+                        break;
+                    case "Sky Blue":
+                        color = Color.SkyBlue;
+                        break;
+                    case "Slate Blue":
+                        color = Color.SlateBlue;
+                        break;
+                    case "Slate Gray":
+                        color = Color.SlateGray;
+                        break;
+                    case "Snow":
+                        color = Color.Snow;
+                        break;
+                    case "Steel Blue":
+                        color = Color.SteelBlue;
+                        break;
+                    case "Tan":
+                        color = Color.Tan;
+                        break;
+                    case "Teal":
+                        color = Color.Teal;
+                        break;
+                    case "Turquoise":
+                        color = Color.Turquoise;
+                        break;
+                    case "Violet":
+                        color = Color.Violet;
+                        break;
+                    case "Wheat":
+                        color = Color.Wheat;
+                        break;
                     case "White":
                         color = Color.White;
+                        break;
+                    case "White Smoke":
+                        color = Color.WhiteSmoke;
+                        break;
+                    case "Yellow":
+                        color = Color.Yellow;
+                        break;
+                    case "Yellow Green":
+                        color = Color.YellowGreen;
                         break;
                     default:
                         switch (iType)
@@ -543,6 +660,7 @@ namespace appBusinessFormBuilder
             EditText m_txt;
             Spinner m_Spinner;
             RadioGroup m_RadGrp;
+            CheckBox m_ChkBox;
             int m_width;
             float m_density;
             int m_cellid;
@@ -568,6 +686,7 @@ namespace appBusinessFormBuilder
             int m_iRadioGroupOrientation = 0;
             string m_sRadioGroupLabels = "";
             string m_sRadioGroupValues = "";
+            string m_chkboxLabel = "chkBox0";
 
             //Text stuff
             Typeface m_Typeface = Typeface.SansSerif;
@@ -762,6 +881,11 @@ namespace appBusinessFormBuilder
             public void SetRadioGroupValues(string sValuesSemiColonSeparated)
             {
                 m_sRadioGroupValues = sValuesSemiColonSeparated;
+            }
+
+            public void SetCheckBoxLabel(string sCheckBoxLabel)
+            {
+                m_chkboxLabel = sCheckBoxLabel;
             }
 
             public void SetTextFont(string sFont)
@@ -1106,6 +1230,77 @@ namespace appBusinessFormBuilder
                         row.AddView(cmbEdit0);
                         m_Spinner = cmbEdit0;
                         break;
+                    case (int)ItemType.Checkbox:
+                        int iWidthOfCheckbox = 30;
+                        CheckBox chkBox = new CheckBox(m_context);
+                        chkBox.Text = m_chkboxLabel;
+                        chkBox.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell));
+                        chkBox.SetTextColor(m_TextColor);
+                        chkBox.SetTypeface(m_Typeface, m_TypefaceStyle);
+                        chkBox.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
+                        chkBox.SetBackgroundColor(m_BackgroundColor);
+                        chkBox.Id = m_cellid + 100;
+                        chkBox.SetIncludeFontPadding(true);
+                        chkBox.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText + iWidthOfCheckbox), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
+                        chkBox.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
+                        switch (m_sAlign)
+                        {
+                            case "Left":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        chkBox.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        chkBox.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        chkBox.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Center":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        chkBox.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        chkBox.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        chkBox.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Right":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        chkBox.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        chkBox.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        chkBox.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                        }
+                        if (m_iBuildType == 1)
+                        {
+                            chkBox.Enabled = false;
+                        }
+
+                        if (m_text == "true" || m_text == "1" || m_text == "-1")
+                        {
+                            chkBox.Checked = true;
+                        }
+
+                        row.AddView(chkBox);
+                        m_ChkBox = chkBox;
+                        break;
                     case (int)ItemType.RadioButton:
                         TableRow.LayoutParams paramsRad = new TableRow.LayoutParams(m_width - ConvertPixelsToDp(fExtraPadding), m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell));
                         RadioGroup radGrp = new RadioGroup(m_context);
@@ -1283,6 +1478,11 @@ namespace appBusinessFormBuilder
             public RadioGroup GetCellRadioGroupView()
             {
                 return m_RadGrp;
+            }
+
+            public CheckBox GetCheckBoxView()
+            {
+                return m_ChkBox;
             }
 
             private int ConvertPixelsToDp(float pixelValue)

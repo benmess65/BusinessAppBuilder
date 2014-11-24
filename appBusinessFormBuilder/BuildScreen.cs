@@ -606,6 +606,16 @@ namespace appBusinessFormBuilder
                 iTop = iTopBarHeight;
             }
 
+            if (iLeft < 0)
+            {
+                iLeft = 0;
+            }
+
+            if (iTop < 0)
+            {
+                iTop = 0;
+            }
+
 
             //Create a new RelativeLayout
             RelativeLayout rl = new RelativeLayout(this_context);
@@ -792,6 +802,7 @@ namespace appBusinessFormBuilder
 
                 TextView txt1 = new TextView(this_context);
                 txt1.Text = arrString[i];
+                txt1.Id = iId + i + 202;
                 txt1.SetWidth(ConvertPixelsToDp(iLabelWidth));
                 txt1.SetTextColor(Android.Graphics.Color.Black);
                 row1.AddView(txt1);
@@ -1031,6 +1042,8 @@ namespace appBusinessFormBuilder
             int iContainerId;
             int iBaseId;
             string sMethod = "";
+            int iOrigColSpan = -1;
+            string sItemName;
 
             //Loop through all the attributes in the dialog
             TableLayout table = (TableLayout)FindViewById(iRLViewId + 1);
@@ -1060,6 +1073,11 @@ namespace appBusinessFormBuilder
                         EditText txt = (EditText)vw;
                         sParameterValue = txt.Text;
                         bProceed = true;
+                        if (sMethod.StartsWith("ValidateMacro"))
+                        {
+                            sMethod = sParameterValue;
+                            sMethod = ProcessMethodName(txt, sMethod);
+                        }
                         Evaluate(txt, e, sMethod);
 //                        DialogTextOnBlur(txt, null, sMethod);
                         break;
@@ -1143,10 +1161,26 @@ namespace appBusinessFormBuilder
                             grdUtils.SaveGridItemDetails(giFormId, iCellSectionId, iSelectionType, iRow, iCol, iCellId, ref iUniqueItemId, ref sRtnMsg);
                             iItemType = iUniqueItemId;
                             grdUtils.DeleteAllItemAttributesNotOfType(giFormId, iCellSectionId, iType, iRow, iCol, iSelectionType);
+                            //Get the original ColSpan (but typically it would not be the 1st item in the dialog)
+                            TextView txtColSpanLbl = (TextView)FindViewById(iRLViewId + 1 + i + 201);
+                            sItemName = txtColSpanLbl.Text;
+                            if (sItemName == "Column Span")
+                            {
+                                TextView txtColSpan = (TextView)FindViewById(iRLViewId + 1 + i + 101);
+                                iOrigColSpan = Convert.ToInt32(txtColSpan.Text);
+                            }
                         }
                         else
                         {
                             iItemType = iUniqueItemId;
+                            //Get the original ColSpan
+                            TextView txtColSpanLbl = (TextView)FindViewById(iRLViewId + 1 + i + 201);
+                            sItemName = txtColSpanLbl.Text;
+                            if (sItemName == "Column Span")
+                            {
+                                TextView txtColSpan = (TextView)FindViewById(iRLViewId + 1 + i + 101);
+                                iOrigColSpan = Convert.ToInt32(txtColSpan.Text);
+                            }
                         }
                         break;
                     default:
@@ -1207,7 +1241,7 @@ namespace appBusinessFormBuilder
                 //If a grid item place the item into the grid itself
                 if (iType == (int)SectionType.GridItem)
                 {
-                    InsertGridItem(iSelectionType, iRow, iCol, iCellSectionId, iCellId);
+                    InsertGridItem(iSelectionType, iRow, iCol, iCellSectionId, iCellId, iOrigColSpan);
                 }
 
                 if (iType == (int)SectionType.HeaderRow)
@@ -1242,7 +1276,7 @@ namespace appBusinessFormBuilder
             }
         }
 
-        public void InsertGridItem(int iCellType, int iRow, int iCol, int iCellSectionId, int iCellId)
+        public void InsertGridItem(int iCellType, int iRow, int iCol, int iCellSectionId, int iCellId, int iOrigColSpan)
         {
             bool bSetGridLines = true;
             clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
@@ -1307,7 +1341,8 @@ namespace appBusinessFormBuilder
 
             //Now there also might be a reduction in the column span
             int iCounter = 0;
-            for (i = iCol; i < iTotalCols; i++)
+            int iColsToCheck = iCol + iOrigColSpan - 1;
+            for (i = iCol; i < iColsToCheck; i++)
             {
                 int iCellIdSpanExtra = iCellId + (i - iCol + 1) * 1000;
                 View vwToAddSpan = (View)FindViewById(iCellIdSpanExtra);
@@ -2864,6 +2899,14 @@ namespace appBusinessFormBuilder
                             }
                         }
 
+                        if (arrParameterName[i].ToString() == "CheckBoxLabel")
+                        {
+                            if (arrParameterValue[i].ToString() != "")
+                            {
+                                bv.SetCheckBoxLabel(arrParameterValue[i].ToString());
+                            }
+                        }
+
                         if (arrParameterName[i].ToString() == "FontSize")
                         {
                             if (arrParameterValue[i].ToString() != "")
@@ -3121,12 +3164,15 @@ namespace appBusinessFormBuilder
                     case (int)ItemType.TextArea:
                         EditText txtEdit = bv.GetCellEditTextView();
                         txtEdit.FocusChange += (sender, args) => { TextBoxFocusChanged(sender, args); };
-//                        txtEdit.Touch += (sender, args) => { TextBoxFocusChanged(sender, args); };
                         break;
                     case (int)ItemType.DropDown:
                         Spinner cmbBox = bv.GetCellDropdownView();
                         cmbBox.ItemSelected += (senderItem, args) => { DropdownSelected(senderItem, args); };
                         cmbBox.Touch += (sender, args) => { DropDownFocusChanged(sender, args); };
+                        break;
+                    case (int)ItemType.Checkbox:
+                        CheckBox chkBox = bv.GetCheckBoxView();
+                        chkBox.Touch += (sender, args) => { CheckBoxFocusChanged(sender, args); };
                         break;
                     case (int)ItemType.RadioButton:
                         RadioGroup radGrp = bv.GetCellRadioGroupView();
@@ -3135,7 +3181,6 @@ namespace appBusinessFormBuilder
                             RadioButton radBtn = (RadioButton)radGrp.GetChildAt(kk);
                             radBtn.Touch += (sender, args) => { RadioGroupFocusChanged(sender, args); };
                         }
-//                        radGrp.SetOnTouchListener(this);
                         break;
                 }
             }
@@ -3188,7 +3233,10 @@ namespace appBusinessFormBuilder
                 cmbMain.SetBackgroundColor(clr);
                 cmbMain.SetSingleLine(true);
 //                cmbMain.SetWidth(cmbBox.Width - 30);
-                cmbMain.SetHeight(cmbBox.Height - 40); //This has to be dynamic
+                if (cmbBox.Height > ConvertPixelsToDp(80))
+                {
+                    cmbMain.SetHeight(cmbBox.Height - ConvertPixelsToDp(40)); //This has to be dynamic
+                }
                 string sTextColor = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextColor", ref sRtnMsg);
                 Color clr2 = clsColor.GetColor(sTextColor, (int)AndroidUtils.ColorType.Text);
                 cmbMain.SetTextColor(clr2);
@@ -3467,27 +3515,58 @@ namespace appBusinessFormBuilder
         //All the event stuff
         public void TextBoxFocusChanged(object sender, EventArgs e)
         {
+            clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
             clsLocalUtils utils = new clsLocalUtils();
             EditText vw = (EditText)sender;
             int iViewId = vw.Id;
+            int iCellId = iViewId - 100; //The  -100 is because the item in question is not the cell but the control in the cell
+            string sRtnMsg = "";
 
-            //This is the OnGotFocus event
-            if (vw.HasFocus)
+            if (vw != null)
             {
                 //Check the row we are on
+                int iRecordNo = -1;
                 int iRCTextView = iViewId + 600;
                 TextView txtRC = (TextView)FindViewById(iRCTextView);
                 string sRC = txtRC.Text;
                 if (utils.IsNumeric(sRC))
                 {
-                    int iRecordNo = Convert.ToInt32(sRC);
-                    UpdateRecordCounterInfo(iRecordNo);
+                    iRecordNo = Convert.ToInt32(sRC);
                 }
-            }
-            else
-            {
-                //Find if the value has changed from the original
-                TextView vwOrig = (TextView)FindViewById(iViewId + 700);
+                //This is the OnGotFocus event
+                if (vw.HasFocus)
+                {
+                    if (iRecordNo > 0)
+                    {
+                        UpdateRecordCounterInfo(iRecordNo);
+                    }
+                }
+                else
+                {
+                    //Get the main cell id
+                    View vwCell = (View)FindViewById(iCellId);
+                    Java.Lang.Object tag3 = vwCell.GetTag(Resource.Integer.CellSectionId);
+                    int iSectionId = Convert.ToInt32(tag3);
+                    int iItemId = grdUtils.GetGridItemId(giFormId, iSectionId, iCellId - iRecordNo + 1, ref sRtnMsg); 
+                    //Regardless run the OnLostFocus function/macro
+                    string sOnLostFocus = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "OnLostFocus", ref sRtnMsg);
+                    if (sOnLostFocus != "")
+                    {
+                        Evaluate(vw, e, sOnLostFocus);
+                    }
+                    //Find if the value has changed from the original and if so run the AfterChanged function/macro
+                    TextView vwOrig = (TextView)FindViewById(iViewId + 700);
+                    string sOriginalValue = vw.Text;
+                    if (vwOrig != null)
+                    {
+                        sOriginalValue = vwOrig.Text;
+                    }
+                    string sValueNow = vw.Text;
+                    if (sOriginalValue != sValueNow)
+                    {
+
+                    }
+                }
             }
             return;
         }
@@ -3507,6 +3586,7 @@ namespace appBusinessFormBuilder
             {
                 iRecordNo = Convert.ToInt32(sRC);
                 UpdateRecordCounterInfo(iRecordNo);
+                FocusFirstEditItemInRecord(iRecordNo, true);
             }
 
             vw.PerformClick();
@@ -3521,6 +3601,7 @@ namespace appBusinessFormBuilder
             RadioButton vwChild = (RadioButton)sender;
             RadioGroup vw = (RadioGroup)vwChild.Parent;
             int iViewId = vw.Id;
+            vwChild.Checked = true;
 
             //Check the row we are on
             int iRCTextView = iViewId + 600;
@@ -3530,6 +3611,27 @@ namespace appBusinessFormBuilder
             {
                 int iRecordNo = Convert.ToInt32(sRC);
                 UpdateRecordCounterInfo(iRecordNo);
+                FocusFirstEditItemInRecord(iRecordNo, true);
+            }
+            return;
+        }
+
+        public void CheckBoxFocusChanged(object sender, EventArgs e)
+        {
+            clsLocalUtils utils = new clsLocalUtils();
+            CheckBox vw = (CheckBox)sender;
+            int iViewId = vw.Id;
+            vw.Checked = true;
+
+            //Check the row we are on
+            int iRCTextView = iViewId + 600;
+            TextView txtRC = (TextView)FindViewById(iRCTextView);
+            string sRC = txtRC.Text;
+            if (utils.IsNumeric(sRC))
+            {
+                int iRecordNo = Convert.ToInt32(sRC);
+                UpdateRecordCounterInfo(iRecordNo);
+                FocusFirstEditItemInRecord(iRecordNo, true);
             }
             return;
         }
@@ -4328,11 +4430,15 @@ namespace appBusinessFormBuilder
 
             //Firstly replace any "this" items with values
             sRtnMethodName = sMethodName;
+            iCellId = vw.Id - 100;
             do
             {
-                if (sRtnMethodName.Contains("this.row"))
+                if (sRtnMethodName.Contains("this.id"))
                 {
-                    iCellId = vw.Id;
+                    sRtnMethodName = sRtnMethodName.Replace("this.id", iCellId.ToString());
+                }
+                else if (sRtnMethodName.Contains("this.row"))
+                {
                     Java.Lang.Object tag3 = vw.GetTag(Resource.Integer.CellSectionId);
                     iSectionId = Convert.ToInt32(tag3);
                     iRowId = GetRowNoFromCellId(iCellId, iSectionId, 1);
@@ -4360,7 +4466,7 @@ namespace appBusinessFormBuilder
             Type type = typeof(Methods);
             MethodInfo info = type.GetMethod(sMethodName);
             object result = null;
-            Methods c = new Methods();
+            Methods c = new Methods(this);
 
             if (info != null)
             {
@@ -4385,7 +4491,9 @@ namespace appBusinessFormBuilder
         // Implement expression functions
         protected void ProcessFunction(object sender, FunctionEventArgs e)
         {
-            Methods mths = new Methods();
+            Methods mths = new Methods(this);
+            clsLocalUtils utils = new clsLocalUtils();
+            string sResult;
 
             if (String.Compare(e.Name, "abs", true) == 0)
             {
@@ -4448,10 +4556,59 @@ namespace appBusinessFormBuilder
                     gbCloseDialog = true;
                 }
             }
+            else if (String.Compare(e.Name, "CheckRadioItems", true) == 0)
+            {
+                //e.Result = 0;
+                //e.ResultString = mths.CheckColumnSpan(giFormId, sender);
+                //if (e.ResultString != "")
+                //{
+                //    alert.SetAlertMessage(e.ResultString);
+                //    this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                //    View vwCol = (View)sender;
+                //    if (vwCol != null)
+                //    {
+                //        SetToOldValue(vwCol.Id);
+                //        gbCloseDialog = false;
+                //        return;
+                //    }
+                //}
+                //else
+                //{
+                //    gbCloseDialog = true;
+                //}
+            }
             else if (String.Compare(e.Name, "GetRecordId", true) == 0)
             {
-                e.Result = mths.GetRecordId(Convert.ToInt32(e.ParametersString[0]), Convert.ToInt32(e.ParametersString[1]), Convert.ToInt32(e.ParametersString[2]));
-                e.ResultString = mths.GetRecordId(Convert.ToInt32(e.ParametersString[0]), Convert.ToInt32(e.ParametersString[1]), Convert.ToInt32(e.ParametersString[2])).ToString();
+                e.Result = mths.GetRecordId(Convert.ToInt32(e.Parameters[0]),2);
+                e.ResultString = e.Result.ToString();
+            }
+            else if (String.Compare(e.Name, "GetCellValue", true) == 0)
+            {
+                e.ResultString = mths.GetCellValue(Convert.ToInt32(e.Parameters[0]));
+                if (utils.IsNumeric(e.ResultString))
+                {
+                    e.Result = Convert.ToDouble(e.ResultString);
+                }
+            }
+            else if (String.Compare(e.Name, "SetCellValue", true) == 0)
+            {
+                sResult = mths.SetCellValue(Convert.ToInt32(e.ParametersString[0]), e.ParametersString[1]);
+                if (sResult != "")
+                {
+                    alert.SetAlertMessage(sResult);
+                    this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                    View vwSet = (View)sender;
+                    if (vwSet != null)
+                    {
+                        SetToOldValue(vwSet.Id - 100); //To get the base cell id
+                        return;
+                    }
+                }
+                else
+                {
+                    e.Result = 0;
+                    e.ResultString = sResult;
+                }
             }
             // Unknown function name
             else e.Status = FunctionStatus.UndefinedFunction;
@@ -4462,7 +4619,7 @@ namespace appBusinessFormBuilder
         public string GetOldValue(int iCellId)
         {
             string sRtn = "";
-            TextView txt = (TextView)FindViewById(iCellId + 100);
+            TextView txt = (TextView)FindViewById(iCellId + 800);
             if (txt != null)
             {
                 sRtn = txt.Text;
@@ -4471,9 +4628,10 @@ namespace appBusinessFormBuilder
             return sRtn;
         }
 
+        //Remember to send the CELL id across not the control within the cell. (The control has +100 from the cell)
         public void SetToOldValue(int iCellId)
         {
-            View vw = (View)FindViewById(iCellId);
+            View vw = (View)FindViewById(iCellId + 100);
 
             switch(vw.GetType().Name)
             {
@@ -4503,6 +4661,12 @@ namespace appBusinessFormBuilder
         int iDetailSectionTableId = 30000000; //Allow 99 possible columns and 99 possible rows per section. There are 3 items in each cell though. The cell, the underlying control and the button for the details/parameters
         int iFooterSectionTableId = 40000000; //Allow 99 possible columns and 99 possible rows per section. There are 3 items in each cell though. The cell, the underlying control and the button for the details/parameters
 
+        public Activity activity;
+        public Methods(Activity _activity)
+        {
+            this.activity = _activity;
+
+        }
         public string CheckColumnSpan(int iFormId, object obj) //
         {
             int iColSpan = 1;
@@ -4514,11 +4678,6 @@ namespace appBusinessFormBuilder
             clsLocalUtils utils = new clsLocalUtils();
             int iTotalCols = 99;
             int iColSectionId = 0;
-            //Eval eval = new Eval();
-            //string testEval = "abs(42 / 4.1 * 18.3)";
-
-            ////eval.ProcessFunction += ProcessFunction;
-            //double dblResult = eval.Execute(testEval);
 
             if (obj.GetType().Name == "EditText")
             {
@@ -4586,10 +4745,21 @@ namespace appBusinessFormBuilder
             return "";
         }
 
-        public int GetRecordId(int iSection, int iRow, int iCol)
+
+        //The item part is a 1 for the cell, 2 for the control, 3 for the next control .. (up to 8 controls) and then 9 for the button
+        public int GetRecordId(int iItemId, int iItemPartId)
         {
-            int iRecord = 144;
-            return iRecord;
+            clsLocalUtils utils = new clsLocalUtils();
+            int iCellId = iItemId + 100 * (iItemPartId - 1); //The  -100 is because the item in question is not the cell but the control in the cell
+            int iRecordNo = -1;
+            int iRCTextView = iCellId + 600;
+            TextView txtRC = (TextView)this.activity.FindViewById(iRCTextView);
+            string sRC = txtRC.Text;
+            if (utils.IsNumeric(sRC))
+            {
+                iRecordNo = Convert.ToInt32(sRC);
+            }
+            return iRecordNo;
         }
 
         public int GetCellId(int iSection, int iRow, int iColumn)
@@ -4622,5 +4792,76 @@ namespace appBusinessFormBuilder
             return iRowId + (iColumn + 1) * 1000 + iRecord;
 
         }
+
+        public string GetCellValue(int iCellId)
+        {
+            string sValue = "";
+            View vw = (View)this.activity.FindViewById(iCellId + 100); //Get the actual control in the cell
+
+            if (vw == null)
+            {
+                return "Cannot find a cell with the Id of " + iCellId.ToString() + ". Are you sure you have specified the table cell and not some other item?";
+            }
+            string sCellType = vw.GetType().Name;
+
+            switch (sCellType)
+            {
+                case "TextView":
+                    TextView txtView = (TextView)vw;
+                    if (txtView != null)
+                    {
+                        sValue = txtView.Text;
+                    }
+                    break;
+                case "EditText":
+                    EditText txtEdit = (EditText)vw;
+                    if (txtEdit != null)
+                    {
+                        sValue = txtEdit.Text;
+                    }
+                    break;
+            }
+
+            return sValue;
+        }
+
+        public string SetCellValue(int iCellId, string sValue)
+        {
+            View vw = (View)this.activity.FindViewById(iCellId + 100); //Get the actual control in the cell
+
+            if (vw == null)
+            {
+                return "Cannot find a cell with the Id of " + iCellId.ToString() + ". Are you sure you have specified the table cell and not some other item?";
+            }
+            string sCellType = vw.GetType().Name;
+
+            switch (sCellType)
+            {
+                case "TextView":
+                    TextView txtView = (TextView)vw;
+                    if (txtView != null)
+                    {
+                        txtView.Text = sValue;
+                    }
+                    break;
+                case "EditText":
+                    EditText txtEdit = (EditText)vw;
+                    if (txtEdit != null)
+                    {
+                        txtEdit.Text = sValue;
+                    }
+                    break;
+            }
+
+            //Now set the old value
+            TextView txtOld = (TextView)this.activity.FindViewById(iCellId + 800);
+            if (txtOld != null)
+            {
+                txtOld.Text = sValue;
+            }
+
+            return "";
+        }
+
     }
 }
