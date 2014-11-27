@@ -15,7 +15,7 @@ namespace appBusinessFormBuilder
     public class MainActivity : Activity
     {
         enum SectionType { Form = 1, Header, Detail, Footer, HeaderRow, HeaderColumn, DetailRow, DetailColumn, FooterRow, FooterColumn, GridItem };
-        enum ItemType { Label = 1, TextBox, TextArea, DropDown, Checkbox, RadioButton, Button, DatePicker, TimePicker, ProgressBar, ColumnHeader, RowHeader, ColumnDetail, RowDetail, ColumnFooter, RowFooter };
+        enum ItemType { Label = 1, TextBox, TextArea, DropDown, Checkbox, RadioButton, Button, DatePicker, TimePicker, Image, ColumnHeader, RowHeader, ColumnDetail, RowDetail, ColumnFooter, RowFooter };
         enum VersionType { Free = 0, Base, Pro, Premium };
 
         Context this_context;

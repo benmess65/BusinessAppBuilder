@@ -651,16 +651,21 @@ namespace appBusinessFormBuilder
         {
             //Simple constants for the main sections
             enum SectionType { Form = 1, Header, Detail, Footer, HeaderRow, HeaderColumn, DetailRow, DetailColumn, FooterRow, FooterColumn, GridItem };
-            enum ItemType { Label = 1, TextBox, TextArea, DropDown, Checkbox, RadioButton, Button, DatePicker, TimePicker, ProgressBar, ColumnHeader, RowHeader, ColumnDetail, RowDetail, ColumnFooter, RowFooter };
+            enum ItemType { Label = 1, TextBox, TextArea, DropDown, Checkbox, RadioButton, Button, DatePicker, TimePicker, Image, ColumnHeader, RowHeader, ColumnDetail, RowDetail, ColumnFooter, RowFooter };
             string sRtnMsg = "";
             Context m_context;
             Activity m_activity;
             string m_text = "";
             Button m_detailbtn;
+            Button m_DPbtn;
+            Button m_TPbtn;
             EditText m_txt;
             Spinner m_Spinner;
             RadioGroup m_RadGrp;
             CheckBox m_ChkBox;
+            Button m_btn;
+            ImageView m_Image;
+            Bitmap m_Bitmap;
             int m_width;
             float m_density;
             int m_cellid;
@@ -1005,7 +1010,7 @@ namespace appBusinessFormBuilder
                         }
                         txt.Id = m_cellid + 100;
                         txt.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
-                        txt.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell));
+                        txt.SetHeight(m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell));
                         switch(m_sAlign)
                         {
                             case "Left":
@@ -1066,7 +1071,7 @@ namespace appBusinessFormBuilder
                         txtEdit.Id = m_cellid + 100;
                         txtEdit.SetSingleLine(true);
                         txtEdit.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
-                        txtEdit.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
+                        txtEdit.SetHeight(m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
                         switch(m_sAlign)
                         {
                             case "Left":
@@ -1132,7 +1137,7 @@ namespace appBusinessFormBuilder
                         txtEdit2.Id = m_cellid + 100;
                         txtEdit2.SetSingleLine(false);
                         txtEdit2.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
-                        txtEdit2.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
+                        txtEdit2.SetHeight(m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
                         switch(m_sAlign)
                         {
                             case "Left":
@@ -1205,7 +1210,7 @@ namespace appBusinessFormBuilder
 
                         ViewGroup.LayoutParams lp = cmbEdit0.LayoutParameters;
                         lp.Width = m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell);
-                        lp.Height = m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell);
+                        lp.Height = m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell);
                         cmbEdit0.LayoutParameters = lp;
                         cmbEdit0.SetBackgroundResource(Resource.Drawable.defaultSpinner2);
 
@@ -1242,7 +1247,7 @@ namespace appBusinessFormBuilder
                         chkBox.Id = m_cellid + 100;
                         chkBox.SetIncludeFontPadding(true);
                         chkBox.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText + iWidthOfCheckbox), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
-                        chkBox.SetHeight(m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
+                        chkBox.SetHeight(m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell)); //This has to be dynamic
                         switch (m_sAlign)
                         {
                             case "Left":
@@ -1302,7 +1307,7 @@ namespace appBusinessFormBuilder
                         m_ChkBox = chkBox;
                         break;
                     case (int)ItemType.RadioButton:
-                        TableRow.LayoutParams paramsRad = new TableRow.LayoutParams(m_width - ConvertPixelsToDp(fExtraPadding), m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell));
+                        TableRow.LayoutParams paramsRad = new TableRow.LayoutParams(m_width - ConvertPixelsToDp(fExtraPadding), m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell));
                         RadioGroup radGrp = new RadioGroup(m_context);
 
                         m_sRadioGroupValues = m_sRadioGroupValues.Trim();
@@ -1324,7 +1329,7 @@ namespace appBusinessFormBuilder
                             iNoOfValues = 1;
                         }
                         int iWidthRadBtn = (m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell));
-                        int iHeightRadBtn = m_iRowHeight - (m_iTopPaddingCell + m_iBottomPaddingCell);
+                        int iHeightRadBtn = m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell);
                         if(m_iRadioGroupOrientation == 0)
                         {
                             radGrp.Orientation = Android.Widget.Orientation.Horizontal;
@@ -1421,6 +1426,274 @@ namespace appBusinessFormBuilder
                         row.AddView(radGrp);
                         m_RadGrp = radGrp;
                         break;
+                    case (int)ItemType.Button:
+                        Button btn = new Button(m_context);
+                        btn.Text = m_text;
+                        btn.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell));
+                        btn.SetTextColor(m_TextColor);
+                        btn.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
+                        btn.SetTypeface(m_Typeface, m_TypefaceStyle);
+                        btn.SetBackgroundColor(m_BackgroundColor);
+                        btn.Id = m_cellid + 100;
+                        btn.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
+                        btn.SetHeight(m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell));
+                        switch (m_sAlign)
+                        {
+                            case "Left":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        btn.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        btn.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        btn.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Center":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        btn.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        btn.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        btn.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Right":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        btn.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        btn.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        btn.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                        }
+                        row.AddView(btn);
+                        m_btn = btn;
+                        break;
+                    case (int)ItemType.Image:
+                        TableRow.LayoutParams paramsImg = new TableRow.LayoutParams(m_width - ConvertPixelsToDp(fExtraPadding), m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell));
+                        ImageView img = new ImageView(m_context);
+                        if(System.IO.File.Exists(m_text))
+                        {
+                            var imagefile = new Java.IO.File(m_text);
+                            Bitmap bitmap = BitmapFactory.DecodeFile(imagefile.AbsolutePath);
+                            Bitmap bitmapScaled = Bitmap.CreateScaledBitmap(bitmap, m_width - ConvertPixelsToDp(fExtraPadding), m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell), true);
+                            bitmap.Dispose();
+                            img.SetImageBitmap(bitmapScaled);
+//                            m_Bitmap = bitmapScaled;
+                            bitmapScaled.Dispose();
+                        }
+//                        img.LayoutParameters = paramsImg;
+                        img.SetBackgroundColor(m_BackgroundColor);
+                        img.Id = m_cellid + 100;
+                        img.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
+                        switch (m_sAlign)
+                        {
+                            case "Left":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        paramsImg.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        paramsImg.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        paramsImg.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Center":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        paramsImg.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        paramsImg.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        paramsImg.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Right":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        paramsImg.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        paramsImg.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        paramsImg.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                        }
+                        row.AddView(img);
+                        m_Image = img;
+                        break;
+                    case (int)ItemType.DatePicker:
+                        TextView txtDP = new TextView(m_context);
+                        txtDP.Text = m_text;
+                        txtDP.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell + 64));
+                        txtDP.SetTextColor(m_TextColor);
+                        txtDP.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
+                        txtDP.SetTypeface(m_Typeface, m_TypefaceStyle);
+                        txtDP.SetBackgroundColor(m_BackgroundColor);
+                        txtDP.Id = m_cellid + 100;
+                        txtDP.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
+                        txtDP.SetHeight(m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell));
+                        switch(m_sAlign)
+                        {
+                            case "Left":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtDP.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtDP.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtDP.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Center":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtDP.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtDP.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtDP.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Right":
+                                switch(m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtDP.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtDP.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtDP.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                        }
+                        row.AddView(txtDP);
+
+                        //Add the button to open the date picker
+                        Button btnDP = new Button(m_context);
+                        btnDP.Text = "...";
+                        btnDP.SetWidth(ConvertPixelsToDp(64f)); //Appears that it is a minimum of 64 pixels for a button
+                        btnDP.SetHeight(ConvertPixelsToDp(64f));
+                        btnDP.Id = m_cellid + 200;
+                        btnDP.Gravity = GravityFlags.Center;
+                        if (m_iBuildType == 1)
+                        {
+                            btnDP.Enabled = false;
+                        }
+                        row.AddView(btnDP);
+                        m_DPbtn = btnDP;
+                        break;
+                    case (int)ItemType.TimePicker:
+                        TextView txtTP = new TextView(m_context);
+                        txtTP.Text = m_text;
+                        txtTP.SetWidth(m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell + 64));
+                        txtTP.SetTextColor(m_TextColor);
+                        txtTP.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
+                        txtTP.SetTypeface(m_Typeface, m_TypefaceStyle);
+                        txtTP.SetBackgroundColor(m_BackgroundColor);
+                        txtTP.Id = m_cellid + 100;
+                        txtTP.SetPadding(ConvertPixelsToDp(m_iLeftPaddingText), ConvertPixelsToDp(m_iTopPaddingText), ConvertPixelsToDp(m_iRightPaddingText), ConvertPixelsToDp(m_iBottomPaddingText));
+                        txtTP.SetHeight(m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell));
+                        switch (m_sAlign)
+                        {
+                            case "Left":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtTP.Gravity = GravityFlags.Left | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtTP.Gravity = GravityFlags.Left | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtTP.Gravity = GravityFlags.Left | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Center":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtTP.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtTP.Gravity = GravityFlags.CenterHorizontal | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtTP.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                            case "Right":
+                                switch (m_sVertAlign)
+                                {
+                                    case "Top":
+                                        txtTP.Gravity = GravityFlags.Right | GravityFlags.Top;
+                                        break;
+                                    case "Center":
+                                        txtTP.Gravity = GravityFlags.Right | GravityFlags.CenterVertical;
+                                        break;
+                                    case "Bottom":
+                                        txtTP.Gravity = GravityFlags.Right | GravityFlags.Bottom;
+                                        break;
+                                }
+                                break;
+                        }
+                        row.AddView(txtTP);
+
+                        //Add the button to open the date picker
+                        Button btnTP = new Button(m_context);
+                        btnTP.Text = "...";
+                        btnTP.SetWidth(ConvertPixelsToDp(64f)); //Appears that it is a minimum of 64 pixels for a button
+                        btnTP.SetHeight(ConvertPixelsToDp(64f));
+                        btnTP.Id = m_cellid + 200;
+                        btnTP.Gravity = GravityFlags.Center;
+                        if (m_iBuildType == 1)
+                        {
+                            btnTP.Enabled = false;
+                        }
+                        row.AddView(btnTP);
+                        m_TPbtn = btnTP;
+                        break;
                 }
                 
                 //In every case add a hidden textview that holds the original value
@@ -1465,6 +1738,16 @@ namespace appBusinessFormBuilder
                 return m_detailbtn;
             }
 
+            public Button GetCellDatePickerButton()
+            {
+                return m_DPbtn;
+            }
+
+            public Button GetCellTimePickerButton()
+            {
+                return m_TPbtn;
+            }
+
             public EditText GetCellEditTextView()
             {
                 return m_txt;
@@ -1483,6 +1766,21 @@ namespace appBusinessFormBuilder
             public CheckBox GetCheckBoxView()
             {
                 return m_ChkBox;
+            }
+
+            public Button GetCellButtonView()
+            {
+                return m_btn;
+            }
+
+            public ImageView GetCellImageView()
+            {
+                return m_Image;
+            }
+
+            public Bitmap GetCellImageBitmap()
+            {
+                return m_Bitmap;
             }
 
             private int ConvertPixelsToDp(float pixelValue)
@@ -1987,6 +2285,38 @@ namespace appBusinessFormBuilder
             public bool OnTouch(View v, MotionEvent e)
             {
                 return OnTouchEvent(e);
+            }
+        }
+
+        public class AndroidDateClass
+        {
+            public string GetDeviceDateFormat(Context this_context)
+            {
+                char[] dteOrder = Android.Text.Format.DateFormat.GetDateFormatOrder(this_context);
+
+                if (dteOrder[0] == 'D')
+                {
+                    return "DD/MM/YYYY";
+                }
+
+                if (dteOrder[0] == 'M')
+                {
+                    return "MM/DD/YYYY";
+                }
+
+                if (dteOrder[0] == 'Y')
+                {
+                    return "YYYY/MM/DD";
+                }
+
+                return "";
+            }
+
+            public bool Is24HourTimeSetting(Context this_context)
+            {
+                bool b24Hour = Android.Text.Format.DateFormat.Is24HourFormat(this_context);
+
+                return b24Hour;
             }
         }
     }

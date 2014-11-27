@@ -22,7 +22,7 @@ namespace appBusinessFormBuilder
 {
     //Simple constants for the main sections
     enum SectionType { Form = 1, Header, Detail, Footer, HeaderRow, HeaderColumn, DetailRow, DetailColumn, FooterRow, FooterColumn, GridItem };
-    enum ItemType { Label = 1, TextBox, TextArea, DropDown, Checkbox, RadioButton, Button, DatePicker, TimePicker, ProgressBar, ColumnHeader, RowHeader, ColumnDetail, RowDetail, ColumnFooter, RowFooter, SQLColumnDropdown = 400 };
+    enum ItemType { Label = 1, TextBox, TextArea, DropDown, Checkbox, RadioButton, Button, DatePicker, TimePicker, Image, ColumnHeader, RowHeader, ColumnDetail, RowDetail, ColumnFooter, RowFooter, SQLColumnDropdown = 400 };
     enum VersionType { Free = 0, Base, Pro, Premium };
 
     [Activity(Label = "BuildScreen")]
@@ -51,6 +51,10 @@ namespace appBusinessFormBuilder
         int giSectionButtonWidth = 50;
         int giNavBarsWidth = 0;
         EditText gtxtFocused;
+        TextView gDatePickerTextView;
+        TextView gTimePickerTextView;
+        bool gbDateDialogOpen = false;
+        bool gbTimeDialogOpen = false;
 
         //Tasks
         Task taskA;
@@ -60,6 +64,7 @@ namespace appBusinessFormBuilder
         //Constants for widths and heights
         int iDetailDialogLabelWidth = 150;
         int iDetailDialogItemWidth = 200;
+        int iDetailDialogItemExtraWidth = 70;
         int iDetailDialogHeight = 200;
         int iOpenTestButtonWidth = 30;
 
@@ -620,7 +625,7 @@ namespace appBusinessFormBuilder
             //Create a new RelativeLayout
             RelativeLayout rl = new RelativeLayout(this_context);
             rl.Id = iId;
-            RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ConvertPixelsToDp(iDetailDialogLabelWidth + iDetailDialogItemWidth), ConvertPixelsToDp(iDetailDialogHeight));
+            RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ConvertPixelsToDp(iDetailDialogLabelWidth + iDetailDialogItemWidth + iDetailDialogItemExtraWidth), ConvertPixelsToDp(iDetailDialogHeight));
             params1.SetMargins(iLeft, iTop, 0, 0);
             int iPaddingMargin1 = ConvertPixelsToDp(5);
             int iPaddingMargin2 = ConvertPixelsToDp(1);
@@ -751,6 +756,7 @@ namespace appBusinessFormBuilder
             int i = 0;
             int iLabelWidth = iDetailDialogLabelWidth;
             int iItemWidth = iDetailDialogItemWidth;
+            int iExtraItemWidth = iDetailDialogItemExtraWidth;
             ArrayList arrDialogItems = new ArrayList();
             clsTabletDB.GridUtils gridUtils = new clsTabletDB.GridUtils();
             LocalDB DB = new LocalDB();
@@ -787,6 +793,7 @@ namespace appBusinessFormBuilder
             ArrayList arrValues = (ArrayList)arrDialogItems[4];
             ArrayList arrSQL = (ArrayList)arrDialogItems[5];
             ArrayList arrOnBlur = (ArrayList)arrDialogItems[6];
+            ArrayList arrExtraButton = (ArrayList)arrDialogItems[7];
 
             for (i = 0; i < arrDesc.Count; i++)
             {
@@ -814,6 +821,7 @@ namespace appBusinessFormBuilder
                 row1.AddView(txtOld);
                 table.AddView(row1);
 
+                string sMethod = arrOnBlur[i].ToString();
                 switch (arrTypeOfControl[i])
                 {
                     case (int)ItemType.Label:
@@ -855,7 +863,6 @@ namespace appBusinessFormBuilder
                         txtEdit1.SetTag(Resource.Integer.CellId, iCellId);
                         txtEdit1.SetTag(Resource.Integer.CellSectionId, iSectionId);
                         txtEdit1.SetTag(Resource.Integer.FormId, giFormId);
-                        string sMethod = arrOnBlur[i].ToString();
                         txtEdit1.SetTag(Resource.String.OnBlurMethodName, sMethod);
                         row1.AddView(txtEdit1);
                         //row1.SetMinimumHeight(ConvertPixelsToDp(30));
@@ -885,6 +892,12 @@ namespace appBusinessFormBuilder
                         //}
                         txtEdit2.SetTag(Resource.Integer.CellType, arrTypeOfControl[i]);
                         txtEdit2.SetTag(Resource.Integer.ParameterId, Convert.ToInt32(arrId[i]));
+                        txtEdit2.SetTag(Resource.Integer.CellRowId, iRow);
+                        txtEdit2.SetTag(Resource.Integer.CellColumnId, iCol);
+                        txtEdit2.SetTag(Resource.Integer.CellId, iCellId);
+                        txtEdit2.SetTag(Resource.Integer.CellSectionId, iSectionId);
+                        txtEdit2.SetTag(Resource.Integer.FormId, giFormId);
+                        txtEdit2.SetTag(Resource.String.OnBlurMethodName, sMethod);
                         row1.AddView(txtEdit2);
                         //row1.SetMinimumHeight(ConvertPixelsToDp(100));
 
@@ -912,6 +925,12 @@ namespace appBusinessFormBuilder
                         cmbEdit1.SetSelection(iSelectedIndex);
                         cmbEdit1.SetTag(Resource.Integer.CellType, arrTypeOfControl[i]);
                         cmbEdit1.SetTag(Resource.Integer.ParameterId, Convert.ToInt32(arrId[i]));
+                        cmbEdit1.SetTag(Resource.Integer.CellRowId, iRow);
+                        cmbEdit1.SetTag(Resource.Integer.CellColumnId, iCol);
+                        cmbEdit1.SetTag(Resource.Integer.CellId, iCellId);
+                        cmbEdit1.SetTag(Resource.Integer.CellSectionId, iSectionId);
+                        cmbEdit1.SetTag(Resource.Integer.FormId, giFormId);
+                        cmbEdit1.SetTag(Resource.String.OnBlurMethodName, sMethod);
 
                         //cmbEdit1.Focusable = true;
                         //cmbEdit1.FocusableInTouchMode = true;
@@ -944,14 +963,27 @@ namespace appBusinessFormBuilder
                         cmbEdit400.SetSelection(iSelectedIndex400);
                         cmbEdit400.SetTag(Resource.Integer.CellType, arrTypeOfControl[i]);
                         cmbEdit400.SetTag(Resource.Integer.ParameterId, Convert.ToInt32(arrId[i]));
+                        cmbEdit400.SetTag(Resource.Integer.CellRowId, iRow);
+                        cmbEdit400.SetTag(Resource.Integer.CellColumnId, iCol);
+                        cmbEdit400.SetTag(Resource.Integer.CellId, iCellId);
+                        cmbEdit400.SetTag(Resource.Integer.CellSectionId, iSectionId);
+                        cmbEdit400.SetTag(Resource.Integer.FormId, giFormId);
+                        cmbEdit400.SetTag(Resource.String.OnBlurMethodName, sMethod);
 
                         row1.AddView(cmbEdit400);
                         //row1.SetMinimumHeight(ConvertPixelsToDp(30));
                         break;
-                }
-            }
+                }   //End swicth
 
-            //Add in the old value textview
+                //Now if there is a button for extra (like SQL build, macro build) add it in, otherwise add in a blank column
+                TextView lblBlank = new TextView(this_context);
+                lblBlank.Text = "";
+                lblBlank.SetWidth(ConvertPixelsToDp(iItemWidth - 2 * iPaddingMargin1));
+                lblBlank.Id = iId + i + 302;
+                lblBlank.SetHeight(ConvertPixelsToDp(34));
+                row1.AddView(lblBlank);
+
+            }
 
             //Now add a row with a save and close button
             TableRow row2 = new TableRow(this_context);
@@ -1044,6 +1076,7 @@ namespace appBusinessFormBuilder
             string sMethod = "";
             int iOrigColSpan = -1;
             string sItemName;
+            int iMainCellId = -1;
 
             //Loop through all the attributes in the dialog
             TableLayout table = (TableLayout)FindViewById(iRLViewId + 1);
@@ -1060,6 +1093,11 @@ namespace appBusinessFormBuilder
                 {
                     sMethod = tag1.ToString();
                 }
+                Java.Lang.Object tagM3 = vw.GetTag(Resource.Integer.CellId);
+                if (tagM3 != null)
+                {
+                    iMainCellId = Convert.ToInt32(tagM3);
+                }
                 switch (iInnerViewType)
                 {
                     case (int)ItemType.Label:
@@ -1073,12 +1111,19 @@ namespace appBusinessFormBuilder
                         EditText txt = (EditText)vw;
                         sParameterValue = txt.Text;
                         bProceed = true;
+                        object senderTxt = new object();
                         if (sMethod.StartsWith("ValidateMacro"))
                         {
                             sMethod = sParameterValue;
-                            sMethod = ProcessMethodName(txt, sMethod);
+                            //Need to get the underlying control from the cell
+                            senderTxt = FindViewById(iMainCellId);
+                            sMethod = ProcessMethodName(senderTxt, sMethod);
                         }
-                        Evaluate(txt, e, sMethod);
+                        else
+                        {
+                            senderTxt = txt;
+                        }
+                        Evaluate(senderTxt, e, sMethod);
 //                        DialogTextOnBlur(txt, null, sMethod);
                         break;
                     case (int)ItemType.DropDown:
@@ -1236,6 +1281,7 @@ namespace appBusinessFormBuilder
                     tableRowContainer.RemoveView(tableRemove);
 
                     InsertTable(iType, 1, 1);
+                    SetHorizontalScrollWidth();
                 }
 
                 //If a grid item place the item into the grid itself
@@ -2176,341 +2222,344 @@ namespace appBusinessFormBuilder
                     }
 
                     //Now build the page navigation bar if required
-                    TableRow tableNavBarContainer = (TableRow)FindViewById(iDetailSectionNavBarContainerId);
-                    if (bNavBarPage)
+                    if (iSectionTypeId == (int)SectionType.Detail)
                     {
-                        giNavBarsWidth = 0;
-
-                        //TableRow rowNav = new TableRow(this_context);
-                        //rowNav.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        //rowNav.SetMinimumHeight(ConvertPixelsToDp(30f));
-                        //rowNav.Id = iDetailSectionPageNavigationRowId;
-
-                        //Put in another table so the widths can be different
-                        TableLayout tableNav = new TableLayout(this_context);
-                        tableNav.Id = iDetailSectionPageNavigationRowId;
-                        TableRow.LayoutParams params2 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
-                        params2.SetMargins(0, 0, 0, 0);
-
-//                        params2.Span = iCols;
-
-                        TableRow.LayoutParams params3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
-                        params3.SetMargins(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
-                        params3.Gravity = GravityFlags.Center;
-
-                        TableRow rowNav1 = new TableRow(this_context);
-                        rowNav1.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNav1.SetMinimumHeight(ConvertPixelsToDp(30f));
-                        rowNav1.Id = iDetailSectionPageNavigationRowId + 100;
-//                        rowNav1.(ConvertPixelsToDp(12), 0, ConvertPixelsToDp(12), 0);
-
-                        //Add 2 buttons
-                        Button btnFirstPage = new Button(this_context);
-                        btnFirstPage.Text = "<<";
-                        btnFirstPage.Id = iNavPageFirstPageButtonId;
-                        btnFirstPage.SetWidth(ConvertPixelsToDp(30));
-                        btnFirstPage.SetHeight(ConvertPixelsToDp(30));
-                        btnFirstPage.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnFirstPage.SetTextColor(Android.Graphics.Color.Black);
-                        btnFirstPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnFirstPage.Click += (sender, args) => { FirstPage(sender, args); }; ;
-
-                        if (iPageNo == 1)
+                        TableRow tableNavBarContainer = (TableRow)FindViewById(iDetailSectionNavBarContainerId);
+                        if (bNavBarPage)
                         {
-                            btnFirstPage.Enabled = false;
+                            giNavBarsWidth = 0;
+
+                            //TableRow rowNav = new TableRow(this_context);
+                            //rowNav.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            //rowNav.SetMinimumHeight(ConvertPixelsToDp(30f));
+                            //rowNav.Id = iDetailSectionPageNavigationRowId;
+
+                            //Put in another table so the widths can be different
+                            TableLayout tableNav = new TableLayout(this_context);
+                            tableNav.Id = iDetailSectionPageNavigationRowId;
+                            TableRow.LayoutParams params2 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
+                            params2.SetMargins(0, 0, 0, 0);
+
+                            //                        params2.Span = iCols;
+
+                            TableRow.LayoutParams params3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
+                            params3.SetMargins(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
+                            params3.Gravity = GravityFlags.Center;
+
+                            TableRow rowNav1 = new TableRow(this_context);
+                            rowNav1.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            rowNav1.SetMinimumHeight(ConvertPixelsToDp(30f));
+                            rowNav1.Id = iDetailSectionPageNavigationRowId + 100;
+                            //                        rowNav1.(ConvertPixelsToDp(12), 0, ConvertPixelsToDp(12), 0);
+
+                            //Add 2 buttons
+                            Button btnFirstPage = new Button(this_context);
+                            btnFirstPage.Text = "<<";
+                            btnFirstPage.Id = iNavPageFirstPageButtonId;
+                            btnFirstPage.SetWidth(ConvertPixelsToDp(30));
+                            btnFirstPage.SetHeight(ConvertPixelsToDp(30));
+                            btnFirstPage.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnFirstPage.SetTextColor(Android.Graphics.Color.Black);
+                            btnFirstPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnFirstPage.Click += (sender, args) => { FirstPage(sender, args); }; ;
+
+                            if (iPageNo == 1)
+                            {
+                                btnFirstPage.Enabled = false;
+                            }
+                            else
+                            {
+                                btnFirstPage.Enabled = true;
+                            }
+                            rowNav1.AddView(btnFirstPage, params3);
+                            giNavBarsWidth += 30;
+
+                            Button btnPrevPage = new Button(this_context);
+                            btnPrevPage.Text = "<";
+                            btnPrevPage.Id = iNavPagePrevPageButtonId;
+                            btnPrevPage.SetWidth(ConvertPixelsToDp(30));
+                            btnPrevPage.SetHeight(ConvertPixelsToDp(30));
+                            btnPrevPage.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnPrevPage.SetTextColor(Android.Graphics.Color.Black);
+                            btnPrevPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnPrevPage.Click += (sender, args) => { PrevPage(sender, args); }; ;
+
+                            if (iPageNo == 1)
+                            {
+                                btnPrevPage.Enabled = false;
+                            }
+                            else
+                            {
+                                btnPrevPage.Enabled = true;
+                            }
+                            rowNav1.AddView(btnPrevPage, params3);
+                            giNavBarsWidth += 30;
+
+                            TextView lblPage = new TextView(this_context);
+                            lblPage.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
+                            lblPage.Text = "Page";
+                            lblPage.Id = iNavPageLabelId;
+                            lblPage.SetWidth(ConvertPixelsToDp(60));
+                            lblPage.SetHeight(ConvertPixelsToDp(30));
+                            lblPage.SetTextColor(Android.Graphics.Color.Black);
+                            lblPage.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            rowNav1.AddView(lblPage, params3);
+                            giNavBarsWidth += 60;
+
+                            EditText txtEditPageNo = (EditText)LayoutInflater.Inflate(Resource.Layout.textbox, null);
+                            txtEditPageNo.Text = iPageNo.ToString();
+                            txtEditPageNo.SetWidth(ConvertPixelsToDp(60));
+                            txtEditPageNo.Id = iNavPageNoEditId;
+                            txtEditPageNo.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
+                            txtEditPageNo.LayoutParameters = params3;
+                            txtEditPageNo.SetHeight(ConvertPixelsToDp(28));
+                            txtEditPageNo.SetSingleLine(true);
+                            rowNav1.AddView(txtEditPageNo, params3);
+                            giNavBarsWidth += 60;
+
+                            TextView lblTotalPage = new TextView(this_context);
+                            lblTotalPage.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
+                            lblTotalPage.Text = "of " + iTotalPages.ToString();
+                            lblTotalPage.Id = iNavPageLabelTotalPagesId;
+                            lblTotalPage.SetWidth(ConvertPixelsToDp(60));
+                            lblTotalPage.SetHeight(ConvertPixelsToDp(30));
+                            lblTotalPage.SetTextColor(Android.Graphics.Color.Black);
+                            lblTotalPage.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            rowNav1.AddView(lblTotalPage, params3);
+                            giNavBarsWidth += 60;
+
+                            Button btnGoToPage = new Button(this_context);
+                            btnGoToPage.Text = "Go To Page";
+                            btnGoToPage.Id = iNavPageGoToPageButtonId;
+                            btnGoToPage.SetWidth(ConvertPixelsToDp(60));
+                            btnGoToPage.SetHeight(ConvertPixelsToDp(30));
+                            btnGoToPage.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnGoToPage.SetTextColor(Android.Graphics.Color.Black);
+                            btnGoToPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnGoToPage.Click += (sender, args) => { GoToPage(sender, args); }; ;
+                            rowNav1.AddView(btnGoToPage, params3);
+                            giNavBarsWidth += 60;
+
+                            Button btnNextPage = new Button(this_context);
+                            btnNextPage.Text = ">";
+                            btnNextPage.Id = iNavPageNextPageButtonId;
+                            btnNextPage.SetWidth(ConvertPixelsToDp(30));
+                            btnNextPage.SetHeight(ConvertPixelsToDp(30));
+                            btnNextPage.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnNextPage.SetTextColor(Android.Graphics.Color.Black);
+                            btnNextPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnNextPage.Click += (sender, args) => { NextPage(sender, args); }; ;
+
+                            if (iPageNo == iTotalPages)
+                            {
+                                btnNextPage.Enabled = false;
+                            }
+                            else
+                            {
+                                btnNextPage.Enabled = true;
+                            }
+                            rowNav1.AddView(btnNextPage, params3);
+                            giNavBarsWidth += 30;
+
+                            Button btnLastPage = new Button(this_context);
+                            btnLastPage.Text = ">>";
+                            btnLastPage.Id = iNavPageLastPageButtonId;
+                            btnLastPage.SetWidth(ConvertPixelsToDp(30));
+                            btnLastPage.SetHeight(ConvertPixelsToDp(30));
+                            btnLastPage.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnLastPage.SetTextColor(Android.Graphics.Color.Black);
+                            btnLastPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnLastPage.Click += (sender, args) => { LastPage(sender, args); }; ;
+
+                            if (iPageNo == iTotalPages)
+                            {
+                                btnLastPage.Enabled = false;
+                            }
+                            else
+                            {
+                                btnLastPage.Enabled = true;
+                            }
+                            rowNav1.AddView(btnLastPage, params3);
+                            giNavBarsWidth += 30;
+
+                            tableNav.AddView(rowNav1);
+                            tableNavBarContainer.AddView(tableNav, params2);
+                            //                        table1.AddView(rowNav);
                         }
                         else
                         {
-                            btnFirstPage.Enabled = true;
+                            TableLayout parent = (TableLayout)tableNavBarContainer.Parent;
+                            parent.RemoveView(tableNavBarContainer);
                         }
-                        rowNav1.AddView(btnFirstPage, params3);
-                        giNavBarsWidth += 30;
 
-                        Button btnPrevPage = new Button(this_context);
-                        btnPrevPage.Text = "<";
-                        btnPrevPage.Id = iNavPagePrevPageButtonId;
-                        btnPrevPage.SetWidth(ConvertPixelsToDp(30));
-                        btnPrevPage.SetHeight(ConvertPixelsToDp(30));
-                        btnPrevPage.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnPrevPage.SetTextColor(Android.Graphics.Color.Black);
-                        btnPrevPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnPrevPage.Click += (sender, args) => { PrevPage(sender, args); }; ;
-
-                        if (iPageNo == 1)
+                        //Now build the Record navigation bar if required
+                        TableRow tableNavBarContainer2 = (TableRow)FindViewById(iDetailSectionNavBarContainerId2);
+                        if (bNavBarRecord)
                         {
-                            btnPrevPage.Enabled = false;
+                            giNavBarsWidth = 0;
+                            //TableRow rowNavRec = new TableRow(this_context);
+                            //rowNavRec.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            //rowNavRec.SetMinimumHeight(ConvertPixelsToDp(30f));
+                            //rowNavRec.Id = iDetailSectionRecordNavigationRowId;
+
+                            //Put in another table so the widths can be different
+                            TableLayout tableNavRec = new TableLayout(this_context);
+                            tableNavRec.Id = iDetailSectionRecordNavigationRowId;
+                            TableRow.LayoutParams paramsRec2 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
+                            paramsRec2.SetMargins(0, 0, 0, 0);
+                            //                        paramsRec2.Span = iCols;
+
+                            TableRow.LayoutParams paramsRec3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
+                            paramsRec3.SetMargins(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
+                            paramsRec3.Gravity = GravityFlags.Center;
+
+                            TableRow rowNav1Rec = new TableRow(this_context);
+                            rowNav1Rec.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            rowNav1Rec.SetMinimumHeight(ConvertPixelsToDp(30f));
+                            rowNav1Rec.Id = iDetailSectionRecordNavigationRowId + 100;
+                            //                        rowNav1.(ConvertPixelsToDp(12), 0, ConvertPixelsToDp(12), 0);
+
+                            //Add 2 buttons
+                            Button btnFirstRecord = new Button(this_context);
+                            btnFirstRecord.Text = "<<";
+                            btnFirstRecord.Id = iNavRecordFirstRecordButtonId;
+                            btnFirstRecord.SetWidth(ConvertPixelsToDp(30));
+                            btnFirstRecord.SetHeight(ConvertPixelsToDp(30));
+                            btnFirstRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnFirstRecord.SetTextColor(Android.Graphics.Color.Black);
+                            btnFirstRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnFirstRecord.Click += (sender, args) => { FirstRecord(sender, args); }; ;
+                            if (iRecordNo == 1)
+                            {
+                                btnFirstRecord.Enabled = false;
+                            }
+                            else
+                            {
+                                btnFirstRecord.Enabled = true;
+                            }
+                            rowNav1Rec.AddView(btnFirstRecord, paramsRec3);
+                            giNavBarsWidth += 30;
+
+                            Button btnPrevRecord = new Button(this_context);
+                            btnPrevRecord.Text = "<";
+                            btnPrevRecord.Id = iNavRecordPrevRecordButtonId;
+                            btnPrevRecord.SetWidth(ConvertPixelsToDp(30));
+                            btnPrevRecord.SetHeight(ConvertPixelsToDp(30));
+                            btnPrevRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnPrevRecord.SetTextColor(Android.Graphics.Color.Black);
+                            btnPrevRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnPrevRecord.Click += (sender, args) => { PrevRecord(sender, args); }; ;
+                            if (iRecordNo == 1)
+                            {
+                                btnPrevRecord.Enabled = false;
+                            }
+                            else
+                            {
+                                btnPrevRecord.Enabled = true;
+                            }
+                            rowNav1Rec.AddView(btnPrevRecord, paramsRec3);
+                            giNavBarsWidth += 30;
+
+                            TextView lblRecord = new TextView(this_context);
+                            lblRecord.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
+                            lblRecord.Text = "Record";
+                            lblRecord.Id = iNavRecordLabelId;
+                            lblRecord.SetWidth(ConvertPixelsToDp(60));
+                            lblRecord.SetHeight(ConvertPixelsToDp(30));
+                            lblRecord.SetTextColor(Android.Graphics.Color.Black);
+                            lblRecord.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            rowNav1Rec.AddView(lblRecord, paramsRec3);
+                            giNavBarsWidth += 60;
+
+                            TextView lblRecordHidden = new TextView(this_context);
+                            lblRecordHidden.Text = iRecordNo.ToString();
+                            lblRecordHidden.Id = iNavRecordLabelHiddenId;
+                            lblRecordHidden.Visibility = ViewStates.Gone;
+                            rowNav1Rec.AddView(lblRecordHidden);
+
+                            EditText txtEditRecordNo = (EditText)LayoutInflater.Inflate(Resource.Layout.textbox, null);
+                            txtEditRecordNo.Text = iRecordNo.ToString();
+                            txtEditRecordNo.SetWidth(ConvertPixelsToDp(60));
+                            txtEditRecordNo.Id = iNavRecordNoEditId;
+                            txtEditRecordNo.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
+                            txtEditRecordNo.LayoutParameters = paramsRec3;
+                            txtEditRecordNo.SetHeight(ConvertPixelsToDp(28));
+                            txtEditRecordNo.SetSingleLine(true);
+                            rowNav1Rec.AddView(txtEditRecordNo, paramsRec3);
+                            giNavBarsWidth += 60;
+
+                            TextView lblTotalRecord = new TextView(this_context);
+                            lblTotalRecord.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
+                            lblTotalRecord.Text = "of " + iTotalRecords.ToString();
+                            lblTotalRecord.Id = iNavRecordLabelTotalRecordsId;
+                            lblTotalRecord.SetWidth(ConvertPixelsToDp(60));
+                            lblTotalRecord.SetHeight(ConvertPixelsToDp(30));
+                            lblTotalRecord.SetTextColor(Android.Graphics.Color.Black);
+                            lblTotalRecord.SetBackgroundColor(Android.Graphics.Color.Wheat);
+                            rowNav1Rec.AddView(lblTotalRecord, paramsRec3);
+                            giNavBarsWidth += 60;
+
+                            Button btnGoToRecord = new Button(this_context);
+                            btnGoToRecord.Text = "Go To Record";
+                            btnGoToRecord.Id = iNavRecordGoToRecordButtonId;
+                            btnGoToRecord.SetWidth(ConvertPixelsToDp(60));
+                            btnGoToRecord.SetHeight(ConvertPixelsToDp(30));
+                            btnGoToRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnGoToRecord.SetTextColor(Android.Graphics.Color.Black);
+                            btnGoToRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnGoToRecord.Click += (sender, args) => { GoToRecord(sender, args); }; ;
+                            rowNav1Rec.AddView(btnGoToRecord, paramsRec3);
+                            giNavBarsWidth += 60;
+
+                            Button btnNextRecord = new Button(this_context);
+                            btnNextRecord.Text = ">";
+                            btnNextRecord.Id = iNavRecordNextRecordButtonId;
+                            btnNextRecord.SetWidth(ConvertPixelsToDp(30));
+                            btnNextRecord.SetHeight(ConvertPixelsToDp(30));
+                            btnNextRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnNextRecord.SetTextColor(Android.Graphics.Color.Black);
+                            btnNextRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnNextRecord.Click += (sender, args) => { NextRecord(sender, args); }; ;
+                            if (iRecordNo == iTotalRecords)
+                            {
+                                btnNextRecord.Enabled = false;
+                            }
+                            else
+                            {
+                                btnNextRecord.Enabled = true;
+                            }
+                            rowNav1Rec.AddView(btnNextRecord, paramsRec3);
+                            giNavBarsWidth += 30;
+
+                            Button btnLastRecord = new Button(this_context);
+                            btnLastRecord.Text = ">>";
+                            btnLastRecord.Id = iNavRecordLastRecordButtonId;
+                            btnLastRecord.SetWidth(ConvertPixelsToDp(30));
+                            btnLastRecord.SetHeight(ConvertPixelsToDp(30));
+                            btnLastRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
+                            btnLastRecord.SetTextColor(Android.Graphics.Color.Black);
+                            btnLastRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
+                            btnLastRecord.Click += (sender, args) => { LastRecord(sender, args); }; ;
+                            if (iRecordNo == iTotalRecords)
+                            {
+                                btnLastRecord.Enabled = false;
+                            }
+                            else
+                            {
+                                btnLastRecord.Enabled = true;
+                            }
+                            rowNav1Rec.AddView(btnLastRecord, paramsRec3);
+                            giNavBarsWidth += 30;
+
+                            tableNavRec.AddView(rowNav1Rec);
+                            tableNavBarContainer2.AddView(tableNavRec, paramsRec2);
+                            //                        table1.AddView(rowNavRec);
                         }
                         else
                         {
-                            btnPrevPage.Enabled = true;
+                            TableLayout parent2 = (TableLayout)tableNavBarContainer2.Parent;
+                            parent2.RemoveView(tableNavBarContainer2);
                         }
-                        rowNav1.AddView(btnPrevPage, params3);
-                        giNavBarsWidth += 30;
-
-                        TextView lblPage = new TextView(this_context);
-                        lblPage.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
-                        lblPage.Text = "Page";
-                        lblPage.Id = iNavPageLabelId;
-                        lblPage.SetWidth(ConvertPixelsToDp(60));
-                        lblPage.SetHeight(ConvertPixelsToDp(30));
-                        lblPage.SetTextColor(Android.Graphics.Color.Black);
-                        lblPage.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNav1.AddView(lblPage, params3);
-                        giNavBarsWidth += 60;
-
-                        EditText txtEditPageNo = (EditText)LayoutInflater.Inflate(Resource.Layout.textbox, null);
-                        txtEditPageNo.Text = iPageNo.ToString();
-                        txtEditPageNo.SetWidth(ConvertPixelsToDp(60));
-                        txtEditPageNo.Id = iNavPageNoEditId;
-                        txtEditPageNo.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
-                        txtEditPageNo.LayoutParameters = params3;
-                        txtEditPageNo.SetHeight(ConvertPixelsToDp(28));
-                        txtEditPageNo.SetSingleLine(true);
-                        rowNav1.AddView(txtEditPageNo, params3);
-                        giNavBarsWidth += 60;
-
-                        TextView lblTotalPage = new TextView(this_context);
-                        lblTotalPage.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
-                        lblTotalPage.Text = "of " + iTotalPages.ToString();
-                        lblTotalPage.Id = iNavPageLabelTotalPagesId;
-                        lblTotalPage.SetWidth(ConvertPixelsToDp(60));
-                        lblTotalPage.SetHeight(ConvertPixelsToDp(30));
-                        lblTotalPage.SetTextColor(Android.Graphics.Color.Black);
-                        lblTotalPage.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNav1.AddView(lblTotalPage, params3);
-                        giNavBarsWidth += 60;
-
-                        Button btnGoToPage = new Button(this_context);
-                        btnGoToPage.Text = "Go To Page";
-                        btnGoToPage.Id = iNavPageGoToPageButtonId;
-                        btnGoToPage.SetWidth(ConvertPixelsToDp(60));
-                        btnGoToPage.SetHeight(ConvertPixelsToDp(30));
-                        btnGoToPage.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnGoToPage.SetTextColor(Android.Graphics.Color.Black);
-                        btnGoToPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnGoToPage.Click += (sender, args) => { GoToPage(sender, args); }; ;
-                        rowNav1.AddView(btnGoToPage, params3);
-                        giNavBarsWidth += 60;
-
-                        Button btnNextPage = new Button(this_context);
-                        btnNextPage.Text = ">";
-                        btnNextPage.Id = iNavPageNextPageButtonId;
-                        btnNextPage.SetWidth(ConvertPixelsToDp(30));
-                        btnNextPage.SetHeight(ConvertPixelsToDp(30));
-                        btnNextPage.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnNextPage.SetTextColor(Android.Graphics.Color.Black);
-                        btnNextPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnNextPage.Click += (sender, args) => { NextPage(sender, args); }; ;
-
-                        if (iPageNo == iTotalPages)
-                        {
-                            btnNextPage.Enabled = false;
-                        }
-                        else
-                        {
-                            btnNextPage.Enabled = true;
-                        }
-                        rowNav1.AddView(btnNextPage, params3);
-                        giNavBarsWidth += 30;
-
-                        Button btnLastPage = new Button(this_context);
-                        btnLastPage.Text = ">>";
-                        btnLastPage.Id = iNavPageLastPageButtonId;
-                        btnLastPage.SetWidth(ConvertPixelsToDp(30));
-                        btnLastPage.SetHeight(ConvertPixelsToDp(30));
-                        btnLastPage.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnLastPage.SetTextColor(Android.Graphics.Color.Black);
-                        btnLastPage.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnLastPage.Click += (sender, args) => { LastPage(sender, args); }; ;
-
-                        if (iPageNo == iTotalPages)
-                        {
-                            btnLastPage.Enabled = false;
-                        }
-                        else
-                        {
-                            btnLastPage.Enabled = true;
-                        }
-                        rowNav1.AddView(btnLastPage, params3);
-                        giNavBarsWidth += 30;
-
-                        tableNav.AddView(rowNav1);
-                        tableNavBarContainer.AddView(tableNav, params2);
-//                        table1.AddView(rowNav);
-                    }
-                    else
-                    {
-                        TableLayout parent = (TableLayout)tableNavBarContainer.Parent;
-                        parent.RemoveView(tableNavBarContainer);
-                    }
-
-                    //Now build the Record navigation bar if required
-                    TableRow tableNavBarContainer2 = (TableRow)FindViewById(iDetailSectionNavBarContainerId2);
-                    if (bNavBarRecord)
-                    {
-                        giNavBarsWidth = 0;
-                        //TableRow rowNavRec = new TableRow(this_context);
-                        //rowNavRec.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        //rowNavRec.SetMinimumHeight(ConvertPixelsToDp(30f));
-                        //rowNavRec.Id = iDetailSectionRecordNavigationRowId;
-
-                        //Put in another table so the widths can be different
-                        TableLayout tableNavRec = new TableLayout(this_context);
-                        tableNavRec.Id = iDetailSectionRecordNavigationRowId;
-                        TableRow.LayoutParams paramsRec2 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
-                        paramsRec2.SetMargins(0, 0, 0, 0);
-                        //                        paramsRec2.Span = iCols;
-
-                        TableRow.LayoutParams paramsRec3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
-                        paramsRec3.SetMargins(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
-                        paramsRec3.Gravity = GravityFlags.Center;
-
-                        TableRow rowNav1Rec = new TableRow(this_context);
-                        rowNav1Rec.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNav1Rec.SetMinimumHeight(ConvertPixelsToDp(30f));
-                        rowNav1Rec.Id = iDetailSectionRecordNavigationRowId + 100;
-                        //                        rowNav1.(ConvertPixelsToDp(12), 0, ConvertPixelsToDp(12), 0);
-
-                        //Add 2 buttons
-                        Button btnFirstRecord = new Button(this_context);
-                        btnFirstRecord.Text = "<<";
-                        btnFirstRecord.Id = iNavRecordFirstRecordButtonId;
-                        btnFirstRecord.SetWidth(ConvertPixelsToDp(30));
-                        btnFirstRecord.SetHeight(ConvertPixelsToDp(30));
-                        btnFirstRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnFirstRecord.SetTextColor(Android.Graphics.Color.Black);
-                        btnFirstRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnFirstRecord.Click += (sender, args) => { FirstRecord(sender, args); }; ;
-                        if (iRecordNo == 1)
-                        {
-                            btnFirstRecord.Enabled = false;
-                        }
-                        else
-                        {
-                            btnFirstRecord.Enabled = true;
-                        }
-                        rowNav1Rec.AddView(btnFirstRecord, paramsRec3);
-                        giNavBarsWidth += 30;
-
-                        Button btnPrevRecord = new Button(this_context);
-                        btnPrevRecord.Text = "<";
-                        btnPrevRecord.Id = iNavRecordPrevRecordButtonId;
-                        btnPrevRecord.SetWidth(ConvertPixelsToDp(30));
-                        btnPrevRecord.SetHeight(ConvertPixelsToDp(30));
-                        btnPrevRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnPrevRecord.SetTextColor(Android.Graphics.Color.Black);
-                        btnPrevRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnPrevRecord.Click += (sender, args) => { PrevRecord(sender, args); }; ;
-                        if (iRecordNo == 1)
-                        {
-                            btnPrevRecord.Enabled = false;
-                        }
-                        else
-                        {
-                            btnPrevRecord.Enabled = true;
-                        }
-                        rowNav1Rec.AddView(btnPrevRecord, paramsRec3);
-                        giNavBarsWidth += 30;
-
-                        TextView lblRecord = new TextView(this_context);
-                        lblRecord.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
-                        lblRecord.Text = "Record";
-                        lblRecord.Id = iNavRecordLabelId;
-                        lblRecord.SetWidth(ConvertPixelsToDp(60));
-                        lblRecord.SetHeight(ConvertPixelsToDp(30));
-                        lblRecord.SetTextColor(Android.Graphics.Color.Black);
-                        lblRecord.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNav1Rec.AddView(lblRecord, paramsRec3);
-                        giNavBarsWidth += 60;
-
-                        TextView lblRecordHidden = new TextView(this_context);
-                        lblRecordHidden.Text = iRecordNo.ToString();
-                        lblRecordHidden.Id = iNavRecordLabelHiddenId;
-                        lblRecordHidden.Visibility = ViewStates.Gone;
-                        rowNav1Rec.AddView(lblRecordHidden);
-
-                        EditText txtEditRecordNo = (EditText)LayoutInflater.Inflate(Resource.Layout.textbox, null);
-                        txtEditRecordNo.Text = iRecordNo.ToString();
-                        txtEditRecordNo.SetWidth(ConvertPixelsToDp(60));
-                        txtEditRecordNo.Id = iNavRecordNoEditId;
-                        txtEditRecordNo.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(1), ConvertPixelsToDp(2), ConvertPixelsToDp(1));
-                        txtEditRecordNo.LayoutParameters = paramsRec3;
-                        txtEditRecordNo.SetHeight(ConvertPixelsToDp(28));
-                        txtEditRecordNo.SetSingleLine(true);
-                        rowNav1Rec.AddView(txtEditRecordNo, paramsRec3);
-                        giNavBarsWidth += 60;
-
-                        TextView lblTotalRecord = new TextView(this_context);
-                        lblTotalRecord.SetPadding(ConvertPixelsToDp(2), ConvertPixelsToDp(0), ConvertPixelsToDp(2), ConvertPixelsToDp(0));
-                        lblTotalRecord.Text = "of " + iTotalRecords.ToString();
-                        lblTotalRecord.Id = iNavRecordLabelTotalRecordsId;
-                        lblTotalRecord.SetWidth(ConvertPixelsToDp(60));
-                        lblTotalRecord.SetHeight(ConvertPixelsToDp(30));
-                        lblTotalRecord.SetTextColor(Android.Graphics.Color.Black);
-                        lblTotalRecord.SetBackgroundColor(Android.Graphics.Color.Wheat);
-                        rowNav1Rec.AddView(lblTotalRecord, paramsRec3);
-                        giNavBarsWidth += 60;
-
-                        Button btnGoToRecord = new Button(this_context);
-                        btnGoToRecord.Text = "Go To Record";
-                        btnGoToRecord.Id = iNavRecordGoToRecordButtonId;
-                        btnGoToRecord.SetWidth(ConvertPixelsToDp(60));
-                        btnGoToRecord.SetHeight(ConvertPixelsToDp(30));
-                        btnGoToRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnGoToRecord.SetTextColor(Android.Graphics.Color.Black);
-                        btnGoToRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnGoToRecord.Click += (sender, args) => { GoToRecord(sender, args); }; ;
-                        rowNav1Rec.AddView(btnGoToRecord, paramsRec3);
-                        giNavBarsWidth += 60;
-
-                        Button btnNextRecord = new Button(this_context);
-                        btnNextRecord.Text = ">";
-                        btnNextRecord.Id = iNavRecordNextRecordButtonId;
-                        btnNextRecord.SetWidth(ConvertPixelsToDp(30));
-                        btnNextRecord.SetHeight(ConvertPixelsToDp(30));
-                        btnNextRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnNextRecord.SetTextColor(Android.Graphics.Color.Black);
-                        btnNextRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnNextRecord.Click += (sender, args) => { NextRecord(sender, args); }; ;
-                        if (iRecordNo == iTotalRecords)
-                        {
-                            btnNextRecord.Enabled = false;
-                        }
-                        else
-                        {
-                            btnNextRecord.Enabled = true;
-                        }
-                        rowNav1Rec.AddView(btnNextRecord, paramsRec3);
-                        giNavBarsWidth += 30;
-
-                        Button btnLastRecord = new Button(this_context);
-                        btnLastRecord.Text = ">>";
-                        btnLastRecord.Id = iNavRecordLastRecordButtonId;
-                        btnLastRecord.SetWidth(ConvertPixelsToDp(30));
-                        btnLastRecord.SetHeight(ConvertPixelsToDp(30));
-                        btnLastRecord.SetBackgroundColor(Android.Graphics.Color.Gray);
-                        btnLastRecord.SetTextColor(Android.Graphics.Color.Black);
-                        btnLastRecord.SetPadding(ConvertPixelsToDp(2), 0, ConvertPixelsToDp(2), 0);
-                        btnLastRecord.Click += (sender, args) => { LastRecord(sender, args); }; ;
-                        if (iRecordNo == iTotalRecords)
-                        {
-                            btnLastRecord.Enabled = false;
-                        }
-                        else
-                        {
-                            btnLastRecord.Enabled = true;
-                        }
-                        rowNav1Rec.AddView(btnLastRecord, paramsRec3);
-                        giNavBarsWidth += 30;
-
-                        tableNavRec.AddView(rowNav1Rec);
-                        tableNavBarContainer2.AddView(tableNavRec, paramsRec2);
-                        //                        table1.AddView(rowNavRec);
-                    }
-                    else
-                    {
-                        TableLayout parent2 = (TableLayout)tableNavBarContainer2.Parent;
-                        parent2.RemoveView(tableNavBarContainer2);
                     }
 
                 }
@@ -2773,6 +2822,16 @@ namespace appBusinessFormBuilder
                             sValue = arrParameterValue[i].ToString();
                         }
 
+                        if (arrParameterName[i].ToString() == "ButtonLabel")
+                        {
+                            sValue = arrParameterValue[i].ToString();
+                        }
+
+                        if (arrParameterName[i].ToString() == "ImageFile")
+                        {
+                            sValue = arrParameterValue[i].ToString();
+                        }
+
                         if (arrParameterName[i].ToString() == "BoundColumn")
                         {
                             sBoundColumn = arrParameterValue[i].ToString();
@@ -2961,7 +3020,7 @@ namespace appBusinessFormBuilder
                     bv.SetTextStyle(sBold, sItalic);
 
                     //If we are spanning columns we have to get the full width
-                    for (i = 1; i < iColSpan; i++)
+                    for (i = 1 + iCol; i < iColSpan + iCol; i++)
                     {
                         iColCellId = iColSpanBaseId + 100000 + (i + 1) * 1000; //The +100000 is because the column dialog/control sits in row 1. We use a different base Id though so it will not use the same id as the row 1 of the main grid
                         iColItemId = grdUtils.GetGridItemId(giFormId, iColSectionId, iColCellId, ref sRtnMsg);
@@ -3181,6 +3240,22 @@ namespace appBusinessFormBuilder
                             RadioButton radBtn = (RadioButton)radGrp.GetChildAt(kk);
                             radBtn.Touch += (sender, args) => { RadioGroupFocusChanged(sender, args); };
                         }
+                        break;
+                    case (int)ItemType.Button:
+                        Button btn = bv.GetCellButtonView();
+                        btn.Click += (sender, args) => { ButtonClicked(sender, args); };
+                        break;
+                    case (int)ItemType.Image:
+                        ImageView img = bv.GetCellImageView();
+                        img.Touch += (sender, args) => { ImageViewFocusChanged(sender, args); };
+                        break;
+                    case (int)ItemType.DatePicker:
+                        Button btnDP = bv.GetCellDatePickerButton();
+                        btnDP.Click += (sender, args) => { OpenDPDialog(sender, args); };
+                        break;
+                    case (int)ItemType.TimePicker:
+                        Button btnTP = bv.GetCellTimePickerButton();
+                        btnTP.Click += (sender, args) => { OpenTPDialog(sender, args); };
                         break;
                 }
             }
@@ -3619,6 +3694,7 @@ namespace appBusinessFormBuilder
         public void CheckBoxFocusChanged(object sender, EventArgs e)
         {
             clsLocalUtils utils = new clsLocalUtils();
+            string sRtnMsg = "";
             CheckBox vw = (CheckBox)sender;
             int iViewId = vw.Id;
             vw.Checked = true;
@@ -3634,6 +3710,157 @@ namespace appBusinessFormBuilder
                 FocusFirstEditItemInRecord(iRecordNo, true);
             }
             return;
+        }
+
+        public void ImageViewFocusChanged(object sender, EventArgs e)
+        {
+            clsLocalUtils utils = new clsLocalUtils();
+            string sRtnMsg = "";
+            ImageView vw = (ImageView)sender;
+            int iViewId = vw.Id;
+
+            //Check the row we are on
+            int iRCTextView = iViewId + 600;
+            TextView txtRC = (TextView)FindViewById(iRCTextView);
+            string sRC = txtRC.Text;
+            if (utils.IsNumeric(sRC))
+            {
+                int iRecordNo = Convert.ToInt32(sRC);
+                UpdateRecordCounterInfo(iRecordNo);
+                FocusFirstEditItemInRecord(iRecordNo, true);
+            }
+            return;
+        }
+
+        public void ButtonClicked(object sender, EventArgs e)
+        {
+            int iRecordNo = -1;
+            string sRtnMsg = "";
+            clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
+            clsLocalUtils utils = new clsLocalUtils();
+            Button vw = (Button)sender;
+            int iViewId = vw.Id;
+
+            //Check the row we are on
+            int iRCTextView = iViewId + 600;
+            TextView txtRC = (TextView)FindViewById(iRCTextView);
+            string sRC = txtRC.Text;
+            if (utils.IsNumeric(sRC))
+            {
+                iRecordNo = Convert.ToInt32(sRC);
+                UpdateRecordCounterInfo(iRecordNo);
+                FocusFirstEditItemInRecord(iRecordNo, true);
+            }
+
+            //Get the main cell id
+            int iCellId = iViewId - 100; //The  -100 is because the item in question is not the cell but the control in the cell
+            View vwCell = (View)FindViewById(iCellId);
+            Java.Lang.Object tag3 = vwCell.GetTag(Resource.Integer.CellSectionId);
+            int iSectionId = Convert.ToInt32(tag3);
+            int iItemId = grdUtils.GetGridItemId(giFormId, iSectionId, iCellId - iRecordNo + 1, ref sRtnMsg);
+            //Regardless run the OnLostFocus function/macro
+            string sOnClick = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "OnClick", ref sRtnMsg);
+            if (sOnClick != "")
+            {
+                Evaluate(vw, e, sOnClick);
+            }
+
+            return;
+        }
+
+        public void OpenDPDialog(object sender, EventArgs e)
+        {
+            if (!gbDateDialogOpen)
+            {
+                Button btn = (Button)sender;
+                gDatePickerTextView = (TextView)FindViewById(btn.Id - 100);
+                string sDate = gDatePickerTextView.Text;
+                DateClass dte = new DateClass();
+                DateTime date = new DateTime();
+                AndroidUtils.AndroidDateClass clsDate = new AndroidUtils.AndroidDateClass();
+
+                if (sDate != "")
+                {
+                    date = dte.GetDateFromString(sDate, clsDate.GetDeviceDateFormat(this_context));
+                }
+                else
+                {
+                    date = DateTime.Today;
+                }
+                DatePickerDialog DPdlg = new DatePickerDialog(this_context, OnDateSet, date.Year, date.Month - 1, date.Day);
+                gbDateDialogOpen = true;
+                DPdlg.Show();
+            }
+            else
+            {
+                alert.SetAlertMessage("There is already a date dialog open. You cannot open more than one at any one time.");
+                this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                return;
+            }
+        }
+
+        void OnDateSet(object sender, DatePickerDialog.DateSetEventArgs e)
+        {
+            DateClass dte = new DateClass();
+            AndroidUtils.AndroidDateClass clsDate = new AndroidUtils.AndroidDateClass();
+
+            //Update the view with the date
+            TextView vw = gDatePickerTextView;
+            gDatePickerTextView = null;
+            string sDateSet = dte.Get_Date_String(e.Date, clsDate.GetDeviceDateFormat(this_context));
+            vw.Text = sDateSet;
+            gbDateDialogOpen = false;
+        }
+
+        public void OpenTPDialog(object sender, EventArgs e)
+        {
+            if (!gbTimeDialogOpen)
+            {
+                Button btn = (Button)sender;
+                gTimePickerTextView = (TextView)FindViewById(btn.Id - 100);
+                string sTime = gTimePickerTextView.Text;
+                DateClass dte = new DateClass();
+                DateTime date = new DateTime();
+                AndroidUtils.AndroidDateClass clsDate = new AndroidUtils.AndroidDateClass();
+                int iHour;
+                int iMinute;
+
+                if (sTime != "")
+                {
+                    string[] sTimes = sTime.Split(':');
+                    iHour = Convert.ToInt32(sTimes[0]);
+                    iMinute = Convert.ToInt32(sTimes[1]);
+                }
+                else
+                {
+                    date = DateTime.Today;
+                    iHour = date.Hour;
+                    iMinute = date.Minute;
+                }
+                bool b24HrTime = clsDate.Is24HourTimeSetting(this_context);
+                TimePickerDialog TPdlg = new TimePickerDialog(this_context, OnTimeSet, iHour, iMinute, b24HrTime);
+                gbTimeDialogOpen = true;
+                TPdlg.Show();
+            }
+            else
+            {
+                alert.SetAlertMessage("There is already a time dialog open. You cannot open more than one at any one time.");
+                this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                return;
+            }
+        }
+
+        void OnTimeSet(object sender, TimePickerDialog.TimeSetEventArgs e)
+        {
+            DateClass dte = new DateClass();
+            AndroidUtils.AndroidDateClass clsDate = new AndroidUtils.AndroidDateClass();
+
+            //Update the view with the date
+            TextView vw = gTimePickerTextView;
+            gTimePickerTextView = null;
+            string sTimeSet = e.HourOfDay + ":" + e.Minute.ToString("00");
+            vw.Text = sTimeSet;
+            gbTimeDialogOpen = false;
         }
 
         public void FirstPage(object sender, EventArgs e)
@@ -3714,7 +3941,7 @@ namespace appBusinessFormBuilder
                 if (iPageNo > 0)
                 {
                     int iRecordNo = 0;
-                    iRecordNo = giTotalRecords - (iPageNo - 1) * giRecordsPerPage;
+                    iRecordNo = (iPageNo - 1) * giRecordsPerPage + 1;
                     OpenDetailPage(iPageNo, iRecordNo);
                 }
                 else
@@ -3810,7 +4037,7 @@ namespace appBusinessFormBuilder
                 if (iPageNo > 0)
                 {
                     int iRecordNo = 0;
-                    iRecordNo = giTotalRecords - (iPageNo - 1) * giRecordsPerPage;
+                    iRecordNo = (iPageNo - 1) * giRecordsPerPage + 1;
                     OpenDetailPage(iPageNo, iRecordNo);
                 }
                 else
@@ -4155,7 +4382,7 @@ namespace appBusinessFormBuilder
                         View vw = (View)FindViewById(iCellId);
                         if (vw != null)
                         {
-                            if (vw.Visibility == ViewStates.Visible && vw.Enabled && (vw.GetType().Name == "EditText" || vw.GetType().Name == "Spinner" || vw.GetType().Name == "RadioGroup"))
+                            if (vw.Visibility == ViewStates.Visible && vw.Enabled && (vw.GetType().Name == "EditText" || vw.GetType().Name == "Spinner" || vw.GetType().Name == "RadioGroup" || vw.GetType().Name == "ImageView"))
                             {
                                 vw.RequestFocus();
                                 bItemFound = true;
@@ -4397,7 +4624,8 @@ namespace appBusinessFormBuilder
                 //Get the info out of the method name
                 sMethodName = ProcessMethodName(sender, sMethodName);
                 eval.ProcessFunction += (send, funce) => {ProcessFunction(sender, funce); };
-                double dblResult = eval.Execute(sMethodName);
+                eval.ProcessSymbol += ProcessSymbol;
+                string dblResult = eval.Execute(sMethodName);
                 string sResult = eval.sResultAsString;
                 return bRtn;
             }
@@ -4446,6 +4674,17 @@ namespace appBusinessFormBuilder
                 }
                 else if (sRtnMethodName.Contains("this.column"))
                 {
+                }
+                else if (sRtnMethodName.Contains("this.value"))
+                {
+                    switch(vw.GetType().Name)
+                    {
+                        case "EditText":
+                        default:
+                            EditText vwEdit = (EditText)vw;
+                            sRtnMethodName = sRtnMethodName.Replace("this.value", vwEdit.Text);
+                            break;
+                    }
                 }
             }
             while (sRtnMethodName.Contains("this."));
@@ -4577,6 +4816,31 @@ namespace appBusinessFormBuilder
                 //    gbCloseDialog = true;
                 //}
             }
+            else if (String.Compare(e.Name, "If", true) == 0)
+            {
+                if (e.Parameters[0] == 0)
+                {
+                    e.Result = e.Parameters[1];
+                    e.ResultString = e.ParametersString[1];
+                }
+                else
+                {
+                    e.Result = e.Parameters[2];
+                    e.ResultString = e.ParametersString[2];
+                }
+            }
+            else if (String.Compare(e.Name, "StringCompare", true) == 0)
+            {
+                if (e.ParametersString[0] == e.ParametersString[1])
+                {
+                    e.Result = 0;
+                }
+                else
+                {
+                    e.Result = -1;
+                }
+                e.ResultString = e.Result.ToString();
+            }
             else if (String.Compare(e.Name, "GetRecordId", true) == 0)
             {
                 e.Result = mths.GetRecordId(Convert.ToInt32(e.Parameters[0]),2);
@@ -4616,6 +4880,24 @@ namespace appBusinessFormBuilder
             return;
         }
 
+        // Implement expression symbols
+        protected void ProcessSymbol(object sender, SymbolEventArgs e)
+        {
+            if (String.Compare(e.Name, "pi", true) == 0)
+            {
+                e.Result = Math.PI;
+                e.ResultString = Math.PI.ToString();
+            }
+            else if (e.Name.GetType().Name.ToUpper() == "STRING")
+            {
+                e.Result = 0;
+                e.ResultString = e.Name;
+                return;
+            }
+            // Unknown symbol name
+            else e.Status = SymbolStatus.UndefinedSymbol;
+        }
+        
         public string GetOldValue(int iCellId)
         {
             string sRtn = "";
