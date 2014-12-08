@@ -50,6 +50,8 @@ namespace appBusinessFormBuilder
         int giDefaultColWidth = 150;
         int giSectionButtonWidth = 50;
         int giNavBarsWidth = 0;
+        int gbtnSenderId;
+        int gbtnSenderType;
         EditText gtxtFocused;
         TextView gDatePickerTextView;
         TextView gTimePickerTextView;
@@ -64,7 +66,7 @@ namespace appBusinessFormBuilder
         //Constants for widths and heights
         int iDetailDialogLabelWidth = 150;
         int iDetailDialogItemWidth = 200;
-        int iDetailDialogItemExtraWidth = 70;
+        int iDetailDialogItemExtraWidth = 90;
         int iDetailDialogHeight = 200;
         int iOpenTestButtonWidth = 30;
 
@@ -182,6 +184,24 @@ namespace appBusinessFormBuilder
                 PopulateTables();
             }
 
+            if (bundle != null)
+            {
+                gbtnSenderId = bundle.GetInt("btnSender");
+                gbtnSenderType = bundle.GetInt("SenderType");
+                int iScrollYPosn = bundle.GetInt("SenderScrollY");
+
+                Button btn = (Button)FindViewById(gbtnSenderId);
+                if (btn != null && gbtnSenderType > 0)
+                {
+                    OpenDetailDialog(btn, null, gbtnSenderType);
+                    ScrollView svDialog = (ScrollView)FindViewById(20);
+                    if (svDialog != null)
+                    {
+                        svDialog.Post(new Action(() => svDialog.ScrollTo(0, iScrollYPosn)));
+                    }
+                }
+            }
+
             //// Create your application here
             //View vw = new GestureRecognizerView(this);
             //SetContentView(vw);
@@ -192,6 +212,20 @@ namespace appBusinessFormBuilder
             //testImg.SetImageResource(Resource.Drawable.Icon);
             //llMain.AddView(testImg);
 
+        }
+
+        protected override void OnSaveInstanceState(Bundle outState)
+        {
+            base.OnSaveInstanceState(outState);
+            ScrollView sv = (ScrollView)FindViewById(20);
+            int iScrollYPosn = 0;
+            if (sv != null)
+            {
+                iScrollYPosn = sv.ScrollY;
+            }
+            outState.PutInt("btnSender", gbtnSenderId);
+            outState.PutInt("SenderType", gbtnSenderType);
+            outState.PutInt("SenderScrollY", iScrollYPosn);
         }
 
         public ScrollView DrawOpeningPage(Android.Content.Context context)
@@ -243,6 +277,7 @@ namespace appBusinessFormBuilder
                         btnForm.SetBackgroundResource(Resource.Drawable.DetailButton);
                         btnForm.SetWidth(ConvertPixelsToDp(iButtonWidth));
                         btnForm.SetHeight(ConvertPixelsToDp(30));
+                        btnForm.Id = iFormDetailButtonId;
                         btnForm.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Form); };
 
                         rowForm.AddView(btnForm);
@@ -296,6 +331,7 @@ namespace appBusinessFormBuilder
                     btnHdr.SetBackgroundResource(Resource.Drawable.DetailButton);
                     btnHdr.SetWidth(ConvertPixelsToDp(30));
                     btnHdr.SetHeight(ConvertPixelsToDp(30));
+                    btnHdr.Id = iHeaderDetailButtonId;
                     btnHdr.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Header); }; ;
 
                     rowHdr.AddView(btnHdr);
@@ -330,6 +366,7 @@ namespace appBusinessFormBuilder
                     btnDetail.SetBackgroundResource(Resource.Drawable.DetailButton);
                     btnDetail.SetWidth(ConvertPixelsToDp(30));
                     btnDetail.SetHeight(ConvertPixelsToDp(30));
+                    btnDetail.Id = iDetailDetailButtonId;
                     btnDetail.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Detail); }; ;
 
                     rowDetail.AddView(btnDetail);
@@ -375,6 +412,7 @@ namespace appBusinessFormBuilder
                     btnFooter.SetBackgroundResource(Resource.Drawable.DetailButton);
                     btnFooter.SetWidth(ConvertPixelsToDp(30));
                     btnFooter.SetHeight(ConvertPixelsToDp(30));
+                    btnFooter.Id = iFooterDetailButtonId;
                     btnFooter.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Footer); }; ;
 
                     rowFooter.AddView(btnFooter);
@@ -458,6 +496,8 @@ namespace appBusinessFormBuilder
             clsTabletDB.GridUtils gridUtils = new clsTabletDB.GridUtils();
             int iItemId = -1;
             View vwSender = (View)sender;
+            gbtnSenderId = vwSender.Id;
+            gbtnSenderType = iType;
             int iInnerViewType = -1;
             ScrollView sv = new ScrollView(this_context);
             sv.Id = 20;
@@ -467,6 +507,7 @@ namespace appBusinessFormBuilder
             string sRtnMsg = "";
             int iCellId = -1;
             int iSectionId = -1;
+            int iCellSectionId = -1;
 
             //First check that another dialog is not open
             if (giDialogOpen == 1)
@@ -490,21 +531,25 @@ namespace appBusinessFormBuilder
                     iId = iFormSectionId;
                     sHeaderText = "Form Settings";
                     iSectionId = iType;
+                    iCellSectionId = iSectionId;
                     break;
                 case (int)SectionType.Header:
                     iId = iHeaderSectionId;
                     sHeaderText = "Header Settings";
                     iSectionId = iType;
+                    iCellSectionId = iSectionId;
                     break;
                 case (int)SectionType.Detail:
                     iId = iDetailSectionId;
                     sHeaderText = "Detail Settings";
                     iSectionId = iType;
+                    iCellSectionId = iSectionId;
                     break;
                 case (int)SectionType.Footer:
                     iId = iFooterSectionId;
                     sHeaderText = "Footer Settings";
                     iSectionId = iType;
+                    iCellSectionId = iSectionId;
                     break;
                 case (int)SectionType.HeaderRow:
                     iId = iHeaderRowSectionId;
@@ -513,6 +558,7 @@ namespace appBusinessFormBuilder
                     iRow = GetRowNoFromCellId(iCellId, iSectionId, 1);
                     iCol = GetColumnNoFromCellId(iCellId, iSectionId, 1);
                     sHeaderText = "Row R" + iRow + " Settings";
+                    iCellSectionId = (int)SectionType.Header;
                     break;
                 case (int)SectionType.HeaderColumn:
                     iId = iHeaderColumnSectionId;
@@ -522,6 +568,7 @@ namespace appBusinessFormBuilder
                     iRow = GetRowNoFromCellId(iCellId, iSectionId, 1);
                     iCol = GetColumnNoFromCellId(iCellId, iSectionId, 1);
                     sHeaderText = "Column C" + iCol + " Settings";
+                    iCellSectionId = (int)SectionType.Header;
                     break;
                 case (int)SectionType.DetailRow:
                     iId = iDetailRowSectionId;
@@ -530,6 +577,7 @@ namespace appBusinessFormBuilder
                     iRow = GetRowNoFromCellId(iCellId, iSectionId, 1);
                     iCol = GetColumnNoFromCellId(iCellId, iSectionId, 1);
                     sHeaderText = "Row R" + iRow + " Settings";
+                    iCellSectionId = (int)SectionType.Detail;
                     break;
                 case (int)SectionType.DetailColumn:
                     iId = iDetailColumnSectionId;
@@ -539,6 +587,7 @@ namespace appBusinessFormBuilder
                     iRow = GetRowNoFromCellId(iCellId, iSectionId, 1);
                     iCol = GetColumnNoFromCellId(iCellId, iSectionId, 1);
                     sHeaderText = "Column C" + iCol + " Settings";
+                    iCellSectionId = (int)SectionType.Detail;
                     break;
                 case (int)SectionType.FooterRow:
                     iId = iFooterRowSectionId;
@@ -547,6 +596,7 @@ namespace appBusinessFormBuilder
                     iRow = GetRowNoFromCellId(iCellId, iSectionId, 1);
                     iCol = GetColumnNoFromCellId(iCellId, iSectionId, 1);
                     sHeaderText = "Row R" + iRow + " Settings";
+                    iCellSectionId = (int)SectionType.Footer;
                     break;
                 case (int)SectionType.FooterColumn:
                     iId = iFooterColumnSectionId;
@@ -556,6 +606,7 @@ namespace appBusinessFormBuilder
                     iRow = GetRowNoFromCellId(iCellId, iSectionId, 1);
                     iCol = GetColumnNoFromCellId(iCellId, iSectionId, 1);
                     sHeaderText = "Column C" + iCol + " Settings";
+                    iCellSectionId = (int)SectionType.Footer;
                     break;
                 case (int)SectionType.GridItem:
                     iId = iGridItemDetailDialogId;
@@ -582,6 +633,7 @@ namespace appBusinessFormBuilder
                             break;
                     }
                     sHeaderText = sSection + "Item R" + iRow + "C" + iCol + " Settings";
+                    iCellSectionId = iSectionId;
                     break;
             }
 
@@ -646,7 +698,7 @@ namespace appBusinessFormBuilder
 
             TableRow.LayoutParams params3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
             params3.SetMargins(0, 0, 0, 0);
-            params3.Span = 2;
+            params3.Span = 4;
 
             //Now put in the unsaved changes text view
             TextView txtChanges = new TextView(this_context);
@@ -721,14 +773,18 @@ namespace appBusinessFormBuilder
                 txt98.Visibility = ViewStates.Gone;
                 row0.AddView(txt98);
 
+                TextView txtBlank = new TextView(this_context);
+                txtBlank.SetWidth(ConvertPixelsToDp(iDetailDialogItemExtraWidth));
+                row0.AddView(txtBlank);
+
                 table.AddView(row0);
 
             }
 
 
-            TableLayout table2 = MakeDetailDialogMainTable(iId, iType, iItemId, iCellId, iSectionId, false);
+            TableLayout table2 = MakeDetailDialogMainTable(iId, iType, iItemId, iCellId, iSectionId, false, iCellSectionId);
             TableRow rowMainDialog = new TableRow(this_context);
-            table2.SetTag(Resource.Integer.CellSectionId, iSectionId);
+            table2.SetTag(Resource.Integer.CellSectionId, iCellSectionId);
             table2.SetTag(Resource.Integer.CellRowId, iRow);
             table2.SetTag(Resource.Integer.CellColumnId, iCol);
             table2.SetTag(Resource.Integer.CellId, iCellId);
@@ -751,7 +807,7 @@ namespace appBusinessFormBuilder
             giDialogOpen = 1;
         }
 
-        private TableLayout MakeDetailDialogMainTable(int iId, int iType, int iItemId, int iCellId, int iSectionId, bool bTypeChanged)
+        private TableLayout MakeDetailDialogMainTable(int iId, int iType, int iItemId, int iCellId, int iSectionId, bool bTypeChanged, int iCellSectionId)
         {
             int i = 0;
             int iLabelWidth = iDetailDialogLabelWidth;
@@ -801,10 +857,25 @@ namespace appBusinessFormBuilder
                 arrTypeOfControl.Add(Convert.ToInt32(arrTypes[i]));
             }
 
+            int iColumnSectionId = -1;
+            switch (iCellSectionId)
+            {
+                case (int)SectionType.Header:
+                    iColumnSectionId = (int)SectionType.HeaderColumn;
+                    break;
+                case (int)SectionType.Detail:
+                    iColumnSectionId = (int)SectionType.DetailColumn;
+                    break;
+                case (int)SectionType.Footer:
+                    iColumnSectionId = (int)SectionType.FooterColumn;
+                    break;
+            }
+
             for (i = 0; i < arrString.Count; i++)
             {
                 TableRow row1 = new TableRow(this_context);
                 row1.SetBackgroundColor(Android.Graphics.Color.Gray);
+                //row1.SetPadding(iPaddingMargin1, iPaddingMargin2, iPaddingMargin1, iPaddingMargin2);
                 //row1.SetMinimumHeight(ConvertPixelsToDp(100));
 
                 TextView txt1 = new TextView(this_context);
@@ -822,6 +893,7 @@ namespace appBusinessFormBuilder
                 table.AddView(row1);
 
                 string sMethod = arrOnBlur[i].ToString();
+
                 switch (arrTypeOfControl[i])
                 {
                     case (int)ItemType.Label:
@@ -848,7 +920,7 @@ namespace appBusinessFormBuilder
                         txtEdit1.Id = iId + i + 2;
                         txtEdit1.SetPadding(10, 1, 10, 1);
                         txtEdit1.LayoutParameters = params2;
-                        txtEdit1.SetHeight(ConvertPixelsToDp(28));
+                        txtEdit1.SetHeight(ConvertPixelsToDp(34));
                         txtEdit1.SetSingleLine(true);
 
                         //if (arrOnBlur[i].ToString() != "")
@@ -867,6 +939,18 @@ namespace appBusinessFormBuilder
                         row1.AddView(txtEdit1);
                         //row1.SetMinimumHeight(ConvertPixelsToDp(30));
 
+                        //Now determine if the visibility should be allowed
+                        if (arrString[i].ToString() == "Column Span" && iType == (int)SectionType.GridItem)
+                        {
+                            iItemId = gridUtils.GetGridItemId(giFormId, iColumnSectionId, 1, iCol, ref sRtnMsg);
+                            string sVisible = gridUtils.GetItemAttribute(giFormId,iColumnSectionId,iItemId,"Visible", ref sRtnMsg);
+                            if (sVisible.ToUpper() == "NO")
+                            {
+                                txtEdit1.Enabled = false;
+                                txtEdit1.SetBackgroundColor(Android.Graphics.Color.LightGray);
+                                txtEdit1.Text = "1";
+                            }
+                        }
                         break;
 
                     case (int)ItemType.TextArea:
@@ -918,7 +1002,7 @@ namespace appBusinessFormBuilder
 
                         ViewGroup.LayoutParams lp = cmbEdit1.LayoutParameters;
                         lp.Width = ConvertPixelsToDp(iItemWidth - 2 * iPaddingMargin1);
-                        lp.Height = ConvertPixelsToDp(28);
+                        lp.Height = ConvertPixelsToDp(34);
                         cmbEdit1.LayoutParameters = lp;
                         cmbEdit1.SetBackgroundResource(Resource.Drawable.defaultSpinner2);
 
@@ -938,6 +1022,18 @@ namespace appBusinessFormBuilder
 
                         row1.AddView(cmbEdit1);
                         //row1.SetMinimumHeight(ConvertPixelsToDp(30));
+
+                        //Now determine if the visibility should be allowed
+                        if (arrString[i].ToString() == "Visible" && (iType == (int)SectionType.HeaderColumn || iType == (int)SectionType.DetailColumn || iType == (int)SectionType.FooterColumn))
+                        {
+                            int iMinColNo = gridUtils.MinimumSpannedColumnNumberForSection(giFormId, iCellSectionId, ref sRtnMsg);
+                            if (iMinColNo <= iCol)
+                            {
+                                cmbEdit1.Enabled = false;
+                                cmbEdit1.SetBackgroundResource(Resource.Drawable.defaultSpinnerLightGray);
+                                cmbEdit1.SetSelection(0); //This means a YES to visible
+                            }
+                        }
                         break;
 
                     case (int)ItemType.SQLColumnDropdown:
@@ -956,7 +1052,7 @@ namespace appBusinessFormBuilder
 
                         ViewGroup.LayoutParams lp400 = cmbEdit400.LayoutParameters;
                         lp400.Width = ConvertPixelsToDp(iItemWidth - 2 * iPaddingMargin1);
-                        lp400.Height = ConvertPixelsToDp(28);
+                        lp400.Height = ConvertPixelsToDp(34);
                         cmbEdit400.LayoutParameters = lp400;
                         cmbEdit400.SetBackgroundResource(Resource.Drawable.defaultSpinner2);
 
@@ -975,13 +1071,41 @@ namespace appBusinessFormBuilder
                         break;
                 }   //End swicth
 
-                //Now if there is a button for extra (like SQL build, macro build) add it in, otherwise add in a blank column
-                TextView lblBlank = new TextView(this_context);
-                lblBlank.Text = "";
-                lblBlank.SetWidth(ConvertPixelsToDp(iItemWidth - 2 * iPaddingMargin1));
-                lblBlank.Id = iId + i + 302;
-                lblBlank.SetHeight(ConvertPixelsToDp(34));
-                row1.AddView(lblBlank);
+                if (arrExtraButton[i].ToString() != "")
+                {
+                    TableRow.LayoutParams params33 = new TableRow.LayoutParams();
+                    params33.SetMargins(iPaddingMargin1, iPaddingMargin2, iPaddingMargin1 * 2, iPaddingMargin2);
+
+                    Button btnExtra = new Button(this_context);
+                    btnExtra.Text ="...";
+                    btnExtra.Id = iId + i + 302;
+                    btnExtra.SetBackgroundColor(Android.Graphics.Color.LightGray);
+                    btnExtra.SetTextColor(Android.Graphics.Color.Black);
+//                    btnExtra.SetWidth(ConvertPixelsToDp(iDetailDialogItemExtraWidth - 4 * iPaddingMargin1));
+                    btnExtra.LayoutParameters = params33;
+                    btnExtra.SetHeight(ConvertPixelsToDp(24));
+                    btnExtra.Gravity = GravityFlags.Center;
+                    //btnExtra.SetPadding(10, 1, 10, 1);
+                    string sFuncName = arrExtraButton[i].ToString();
+                    sFuncName = sFuncName.Substring(0,sFuncName.IndexOf("("));
+                    switch(sFuncName)
+                    {
+                        case "OpenSQLManager":
+                            btnExtra.Click += (senderextra, args) => { OpenSQLManager(senderextra, args); };
+                            break;
+                    }
+                    row1.AddView(btnExtra);
+                }
+                else
+                {
+                    //Now if there is a button for extra (like SQL build, macro build) add it in, otherwise add in a blank column
+                    TextView lblBlank = new TextView(this_context);
+                    lblBlank.Text = "";
+                    lblBlank.SetWidth(ConvertPixelsToDp(iDetailDialogItemExtraWidth));
+                    lblBlank.Id = iId + i + 302;
+                    lblBlank.SetHeight(ConvertPixelsToDp(34));
+                    row1.AddView(lblBlank);
+                }
 
             }
 
@@ -1013,6 +1137,14 @@ namespace appBusinessFormBuilder
             table.AddView(row2);
 
             return table;
+        }
+
+        public void OpenSQLManager(object sender, EventArgs e)
+        {
+            var SQLScreen = new Intent(this, typeof(SQLTableManager));
+            //SQLScreen.PutExtra("BuildNew", iBuild);
+            //SQLScreen.PutExtra("FormId", iFormId);
+            this.StartActivity(SQLScreen);
         }
 
         public bool DialogTextOnBlur(object sender, EventArgs e, string sMethodName)
@@ -1059,6 +1191,7 @@ namespace appBusinessFormBuilder
         private void SaveDetailDialog(object sender, EventArgs e, int iRLViewId, int iType)
         {
             clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
+            clsLocalUtils utils = new clsLocalUtils();
             Android.App.ActionBar navBar = this.ActionBar;
             int i;
             int iInnerViewType;
@@ -1184,7 +1317,7 @@ namespace appBusinessFormBuilder
                         iCol = Convert.ToInt32(tag5);
                         Java.Lang.Object tag6 = tableVW.GetTag(Resource.Integer.CellId);
                         iCellId = Convert.ToInt32(tag6);
-                        grdUtils.SaveGridItemDetails(giFormId, iCellSectionId, iSelectionType, iRow, iCol, iCellId, ref iUniqueItemId, ref sRtnMsg);
+                        grdUtils.SaveGridItemDetails(giFormId, iType, iSelectionType, iRow, iCol, iCellId, ref iUniqueItemId, ref sRtnMsg);
                         iItemType = iUniqueItemId;
                         break;
                     case (int)SectionType.GridItem:
@@ -1212,6 +1345,10 @@ namespace appBusinessFormBuilder
                             if (sItemName == "Column Span")
                             {
                                 TextView txtColSpan = (TextView)FindViewById(iRLViewId + 1 + i + 101);
+                                if (utils.IsNumeric(txtColSpan.Text))
+                                {
+                                    iOrigColSpan = Convert.ToInt32(txtColSpan.Text);
+                                }
                                 iOrigColSpan = Convert.ToInt32(txtColSpan.Text);
                             }
                         }
@@ -1224,7 +1361,10 @@ namespace appBusinessFormBuilder
                             if (sItemName == "Column Span")
                             {
                                 TextView txtColSpan = (TextView)FindViewById(iRLViewId + 1 + i + 101);
-                                iOrigColSpan = Convert.ToInt32(txtColSpan.Text);
+                                if (utils.IsNumeric(txtColSpan.Text))
+                                {
+                                    iOrigColSpan = Convert.ToInt32(txtColSpan.Text);
+                                }
                             }
                         }
                         break;
@@ -1233,7 +1373,7 @@ namespace appBusinessFormBuilder
                         break;
                 }
 
-                if (bProceed)
+                if (bProceed && gbCloseDialog)
                 {
                     if (!grdUtils.SaveItemAttribute(giFormId, iItemType, iType, iParameterId, sParameterValue, ref sRtnMsg))
                     {
@@ -1812,7 +1952,7 @@ namespace appBusinessFormBuilder
                     TableRow.LayoutParams params3 = new TableRow.LayoutParams(TableRow.LayoutParams.FillParent, TableRow.LayoutParams.WrapContent);
                     params3.SetMargins(0, 0, 0, 0);
                     params3.Span = 2;
-                    TableLayout table2 = MakeDetailDialogMainTable(iRLViewId, (int)SectionType.GridItem, e.Position + 1, iCellId, iCellSectionId, true);
+                    TableLayout table2 = MakeDetailDialogMainTable(iRLViewId, (int)SectionType.GridItem, e.Position + 1, iCellId, iCellSectionId, true, iCellSectionId);
 
                     //Must remove here becasue you need the table in the Make main table routine.
                     tabrow.RemoveView(tableVW);
@@ -1965,29 +2105,55 @@ namespace appBusinessFormBuilder
                         table1 = table;
 
                         //Now create a row at the top for the column headers
-                        if (giBuild == 1)
-                        {
-                            TableRow rowColHdr = new TableRow(this_context);
+                        TableRow rowColHdr = new TableRow(this_context);
+                        //if (giBuild == 1)
+                        //{
 
                             //And put a blank cell in the top left. THis cell has no detail dialog button available
                             View vwColTL = GetCellView((int)ItemType.Label, -1, -1, iSectionTypeId * -1, bSetGridLines, iCols, -1, 0, null);
                             if (vwColTL != null)
                             {
-                                rowColHdr.AddView(vwColTL);
-                            }
+                                TableRow.LayoutParams params99 = new TableRow.LayoutParams(5, 5);
+                                if (giBuild == 0)
+                                {
 
+                                    vwColTL.Visibility = ViewStates.Gone;
+                                    //vwColTL.LayoutParameters = params99;
+                                    rowColHdr.AddView(vwColTL);
+                                }
+                                else
+                                {
+                                    rowColHdr.AddView(vwColTL);
+                                }
+
+                            }
+                        //}
                             for (i = 0; i < iCols; i++)
                             {
 
                                 View vwCol = GetCellView(iColumnHeaderItemType, 0, i, iColumnSection, bSetGridLines, iCols, -1, 0, null);
+                                TableRow.LayoutParams params999 = new TableRow.LayoutParams(5, 5);
                                 if (vwCol != null)
                                 {
-                                    rowColHdr.AddView(vwCol);
+                                    if (giBuild == 0)
+                                    {
+                                        //TextView txtTest = new TextView(this_context);
+                                        //txtTest.SetWidth(150);
+                                        //txtTest.SetHeight(1);
+                                        //txtTest.Visibility = ViewStates.Visible;
+//                                        vwCol.LayoutParameters = params999;
+                                        rowColHdr.AddView(vwCol);
+                                        rowColHdr.Id = 999999999;
+                                    }
+                                    else
+                                    {
+                                        rowColHdr.AddView(vwCol);
+                                    }
                                 }
                             }
 
                             table1.AddView(rowColHdr);
-                        }
+                        //}
                     }
                     else
                     {
@@ -2012,6 +2178,7 @@ namespace appBusinessFormBuilder
                         if (utils.IsNumeric(sRecordsInSection))
                         {
                             iRecordsInSection = Convert.ToInt32(sRecordsInSection);
+                            
                         }
                         
                         if (sRepeatable.ToUpper() == "YES")
@@ -2028,21 +2195,24 @@ namespace appBusinessFormBuilder
                             }
 
                             giTotalRecords = iTotalRecords;
-                            giRecordsPerPage = iRecordsInSection/iRows;
                             giDetailRows = iRows;
+                            //Subtract any hidden rows
+                            int iHiddenRows = grdUtils.GetHiddenRowCount(giFormId, iRowSection, ref sRtnMsg);
+                            giDetailRows = giDetailRows - iHiddenRows;
+                            giRecordsPerPage = iRecordsInSection / giDetailRows;
                             giDetailColumns = iCols;
 
-                            if (iRepeatableRecords % (iRecordsInSection/iRows) > 0.000001)
+                            if (iRepeatableRecords % (iRecordsInSection / giDetailRows) > 0.000001)
                             {
-                                iTotalPages = iRepeatableRecords / (iRecordsInSection/iRows) + 1;
+                                iTotalPages = iRepeatableRecords / (iRecordsInSection / giDetailRows) + 1;
                             }
                             else
                             {
-                                iTotalPages = iRepeatableRecords / (iRecordsInSection / iRows);
+                                iTotalPages = iRepeatableRecords / (iRecordsInSection / giDetailRows);
                             }
 
-                            iLowerRecord = (iPageNo - 1) * (iRecordsInSection / iRows);
-                            iUpperRecord = (iPageNo) * (iRecordsInSection / iRows);
+                            iLowerRecord = (iPageNo - 1) * (iRecordsInSection / giDetailRows);
+                            iUpperRecord = (iPageNo) * (iRecordsInSection / giDetailRows);
                             if (iUpperRecord > iTotalRecords)
                             {
                                 iUpperRecord = iTotalRecords;
@@ -2116,14 +2286,21 @@ namespace appBusinessFormBuilder
                                 trow = row;
 
                                 //Put in the row bits
-                                if (giBuild == 1)
-                                {
+                                //if (giBuild == 1 )
+                                //{
                                     View vwRow = GetCellView(iRowHeaderItemType, j, 0, iRowSection, bSetGridLines, iCols, -1, 0, null);
                                     if (vwRow != null)
                                     {
                                         trow.AddView(vwRow);
                                     }
-                                }
+
+                                    if (giBuild == 0)
+                                    {
+                                        TableRow.LayoutParams params9999 = new TableRow.LayoutParams(5, 5);
+                                        vwRow.Visibility = ViewStates.Gone;
+//                                        vwRow.LayoutParameters = params9999;
+                                    }
+                                //}
 
                                 for (i = 0; i < iCols; i++)
                                 {
@@ -2135,6 +2312,17 @@ namespace appBusinessFormBuilder
                                 }
 
                                 table1.AddView(trow);
+                                if (giBuild == 0)
+                                {
+                                    //Now hide row if necessary
+                                    int iItemId = grdUtils.GetGridItemId(giFormId, iRowSection, j + 1, 1, ref sRtnMsg);
+                                    string sVisible = grdUtils.GetItemAttribute(giFormId, iRowSection, iItemId, "Visible", ref sRtnMsg);
+                                    if (sVisible.ToUpper() == "NO")
+                                    {
+                                        trow.Visibility = ViewStates.Gone;
+                                    }
+                                }
+
                             }
                             else
                             {
@@ -2220,6 +2408,21 @@ namespace appBusinessFormBuilder
                     {
                         tableContainer.AddView(table1, params1);
                     }
+
+                    //Now hide any columns
+                    if (giBuild == 0)
+                    {
+                        //Find all columns that are hidden
+                        int[] lstColumns = grdUtils.GetHiddenColumns(giFormId, iColumnSection, ref sRtnMsg);
+                        if (lstColumns != null)
+                        {
+                            for (int kkk = 0; kkk < lstColumns.Length; kkk++)
+                            {
+                                table1.SetColumnCollapsed(lstColumns[kkk], true);
+                            }
+                        }
+                    }
+
 
                     //Now build the page navigation bar if required
                     if (iSectionTypeId == (int)SectionType.Detail)
@@ -2563,6 +2766,13 @@ namespace appBusinessFormBuilder
                     }
 
                 }
+
+                //TableRow tblColHdr = (TableRow)FindViewById(999999999);
+                //if (tblColHdr != null)
+                //{
+                //    TableLayout tableToRemoveFrom = (TableLayout)FindViewById(iBaseId);
+                //    tableToRemoveFrom.RemoveView(tblColHdr);
+                //}
             }
             catch (Exception ex)
                 {
@@ -2597,6 +2807,7 @@ namespace appBusinessFormBuilder
             int iTextPaddingLeft = 0, iTextPaddingTop = 0, iTextPaddingRight = 0, iTextPaddingBottom = 0;
             int iColSpan = 1;
             int iColSectionId = -1;
+            int iRowSectionId = -1;
             int iColWidthSpan = 0;
             int iMainSection = -1;
             int iColSpanBaseId = -1;
@@ -2627,6 +2838,7 @@ namespace appBusinessFormBuilder
                     iColItemId = grdUtils.GetGridItemId(giFormId, (int)SectionType.HeaderColumn, iColCellId, ref sRtnMsg);
                     sColWidth = grdUtils.GetItemAttribute(giFormId, (int)SectionType.HeaderColumn, iColItemId, "Width", ref sRtnMsg);
                     iColSectionId = (int)SectionType.HeaderColumn;
+                    iRowSectionId = (int)SectionType.HeaderRow;
                     iMainSection = (int)SectionType.Header;
                     iColSpanBaseId = iHeaderColumnBaseId;
                     sTotalRows = grdUtils.GetItemAttribute(giFormId, iSectionTypeId, -1, "Rows", ref sRtnMsg);
@@ -2644,6 +2856,7 @@ namespace appBusinessFormBuilder
                     iColItemId = grdUtils.GetGridItemId(giFormId, (int)SectionType.DetailColumn, iColCellId, ref sRtnMsg);
                     sColWidth = grdUtils.GetItemAttribute(giFormId, (int)SectionType.DetailColumn, iColItemId, "Width", ref sRtnMsg);
                     iColSectionId = (int)SectionType.DetailColumn;
+                    iRowSectionId = (int)SectionType.DetailRow;
                     iMainSection = (int)SectionType.Detail;
                     iColSpanBaseId = iDetailColumnBaseId;
                     sTotalRows = grdUtils.GetItemAttribute(giFormId, iSectionTypeId, -1, "Rows", ref sRtnMsg);
@@ -2661,6 +2874,7 @@ namespace appBusinessFormBuilder
                     iColItemId = grdUtils.GetGridItemId(giFormId, (int)SectionType.FooterColumn, iColCellId, ref sRtnMsg);
                     sColWidth = grdUtils.GetItemAttribute(giFormId, (int)SectionType.FooterColumn, iColItemId, "Width", ref sRtnMsg);
                     iColSectionId = (int)SectionType.FooterColumn;
+                    iRowSectionId = (int)SectionType.FooterRow;
                     iMainSection = (int)SectionType.Footer;
                     iColSpanBaseId = iFooterColumnBaseId;
                     sTotalRows = grdUtils.GetItemAttribute(giFormId, iSectionTypeId, -1, "Rows", ref sRtnMsg);
@@ -2867,6 +3081,7 @@ namespace appBusinessFormBuilder
                             if (arrParameterValue[i].ToString() != "")
                             {
                                 bv.SetBackgroundColor(arrParameterValue[i].ToString());
+                                bv.SetDropDownBackgroundColor(arrParameterValue[i].ToString());
                             }
                         }
 
@@ -3126,12 +3341,18 @@ namespace appBusinessFormBuilder
                 bv.SetBuildType(giBuild);
             }
 
+            if (giBuild == 0)
+            {
+                iLeftHandColWidth = 5;
+                iTopRowHeight = 5;
+            }
+
             //This is for the top left cell in the build only
             if(iRow < 0 && iCol < 0)
             {
                 bv.SetRowWidth(iLeftHandColWidth);
                 bv.SetRowHeight(iTopRowHeight);
-
+//                bv.SetTextSize(2);
             }
 
             //This is for the left hand side row cell which is only applicable in build mode
@@ -3139,8 +3360,6 @@ namespace appBusinessFormBuilder
             {
                 bv.SetRowWidth(iLeftHandColWidth);
                 bv.SetTextAlignment("Center");
-                //Also set the row color to the same as the gridlines color
-                //Also set the text color to blue, bold and say 14pt
             }
 
             //This is for the top cell in each column which is only applicable in build mode
@@ -3152,26 +3371,46 @@ namespace appBusinessFormBuilder
                 }
                 else
                 {
-                    bv.SetRowHeight(1);
+                    bv.SetRowHeightForced(0);
+                    bv.SetText("");
                 }
                 bv.SetTextAlignment("Center");
-                //Also set the row color to the same as the gridlines color
-                //Also set the text color to blue, bold and say 14pt
+            }
+
+            bool bInvisible = false;
+            if (iSectionTypeId == (int)SectionType.Header || iSectionTypeId == (int)SectionType.Detail || iSectionTypeId == (int)SectionType.Footer || 
+                iSectionTypeId == (int)SectionType.HeaderColumn || iSectionTypeId == (int)SectionType.DetailColumn || iSectionTypeId == (int)SectionType.FooterColumn)
+            {
+                int iColumnHdrId = grdUtils.GetGridItemId(giFormId, iColSectionId, 1, iCol + 1, ref sRtnMsg);
+                string sColHidden = grdUtils.GetItemAttribute(giFormId, iColSectionId, iColumnHdrId, "Visible", ref sRtnMsg);
+                int iRowHdrId = grdUtils.GetGridItemId(giFormId, iRowSectionId, iRow + 1, 1, ref sRtnMsg);
+                string sRowHidden = grdUtils.GetItemAttribute(giFormId, iRowSectionId, iRowHdrId, "Visible", ref sRtnMsg);
+
+                //please note the value is actually visible so NO means it is hidden
+                if ((sColHidden.ToUpper() == "NO" || sRowHidden.ToUpper() == "NO") && giBuild == 0)
+                {
+                    bInvisible = true;
+                }
             }
 
             bv.SetGridLinesColor(sGridLineColor);
-//            bv.SetMainActivity(this);
             View vw = bv.GetCellView(iCellType);
             vw.Id = iCellId;
-            vw.SetTag(Resource.String.CellReference, "R" + (iRow + 1) + "C" + (iCol+1));
+            //Get the row and column attribute about hidden/visibility
+            if (bInvisible)
+            {
+                vw.Visibility = ViewStates.Gone;
+            }
+
+            vw.SetTag(Resource.String.CellReference, "R" + (iRow + 1) + "C" + (iCol + 1));
             vw.SetTag(Resource.Integer.CellType, iCellType);
             vw.SetTag(Resource.Integer.CellSectionId, iSectionTypeId);
 
             TableRow.LayoutParams vwParams = new TableRow.LayoutParams();
-            if (iTotalRows > 1 || (giBuild == 1))
-            {
+//            if (iTotalRows > 1 || (giBuild == 1))
+//            {
                 vwParams.Span = iColSpan;
-            }
+//            }
             vw.LayoutParameters = vwParams;
         
             //Different modes when opening the detail dialog
@@ -3289,6 +3528,7 @@ namespace appBusinessFormBuilder
             }
             return true;
         }
+
         public void DropdownSelected(object sender, AdapterView.ItemSelectedEventArgs e)
         {
             clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
@@ -3303,15 +3543,15 @@ namespace appBusinessFormBuilder
                 int iSpinnerMainViewId = cmbBox.Id - 100;
                 int iRC = GetRecordCounterFromCellId(iSpinnerMainViewId);
                 int iItemId = grdUtils.GetGridItemId(giFormId, (int)SectionType.Detail, iSpinnerMainViewId - iRC + 1, ref sRtnMsg);
-                string sBackgroundColor = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "BackgroundColor", ref sRtnMsg);
-                Color clr = clsColor.GetColor(sBackgroundColor, (int)AndroidUtils.ColorType.Background);
-                cmbMain.SetBackgroundColor(clr);
+                //string sBackgroundColor = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "BackgroundColor", ref sRtnMsg);
+                //Color clr = clsColor.GetColor(sBackgroundColor, (int)AndroidUtils.ColorType.Background);
+//                cmbMain.SetBackgroundColor(clr);
                 cmbMain.SetSingleLine(true);
 //                cmbMain.SetWidth(cmbBox.Width - 30);
-                if (cmbBox.Height > ConvertPixelsToDp(80))
-                {
-                    cmbMain.SetHeight(cmbBox.Height - ConvertPixelsToDp(40)); //This has to be dynamic
-                }
+                //if (cmbBox.Height > ConvertPixelsToDp(80))
+                //{
+                //    cmbMain.SetHeight(cmbBox.Height - ConvertPixelsToDp(40)); //This has to be dynamic
+                //}
                 string sTextColor = grdUtils.GetItemAttribute(giFormId, (int)SectionType.GridItem, iItemId, "TextColor", ref sRtnMsg);
                 Color clr2 = clsColor.GetColor(sTextColor, (int)AndroidUtils.ColorType.Text);
                 cmbMain.SetTextColor(clr2);
@@ -4616,11 +4856,6 @@ namespace appBusinessFormBuilder
                 // Evaluate the current expression
                 Eval eval = new Eval();
                 bool bRtn = true;
-//                List<string> tokens = eval.TokenizeExpression(sMethodName);
-                //string testEval = "GetRecordId(1, 12, 19) + GetRecordId(1, 12, 19)";
-
-//                FunctionEventArgs funce = new FunctionEventArgs();
-//                btnForm.Click += (sender, args) => { OpenDetailDialog(sender, args, (int)SectionType.Form); }; ;
                 //Get the info out of the method name
                 sMethodName = ProcessMethodName(sender, sMethodName);
                 eval.ProcessFunction += (send, funce) => {ProcessFunction(sender, funce); };
@@ -4733,6 +4968,8 @@ namespace appBusinessFormBuilder
             Methods mths = new Methods(this);
             clsLocalUtils utils = new clsLocalUtils();
             string sResult;
+            clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
+            string sRtnMsg = "";
 
             if (String.Compare(e.Name, "abs", true) == 0)
             {
@@ -4785,7 +5022,16 @@ namespace appBusinessFormBuilder
                     View vwCol = (View)sender;
                     if (vwCol != null)
                     {
-                        SetToOldValue(vwCol.Id);
+
+                        SetDialogToOldValue(vwCol.Id);
+                        Java.Lang.Object tag3 = vwCol.GetTag(Resource.Integer.CellSectionId);
+                        int iCellSectionId = Convert.ToInt32(tag3);
+                        Java.Lang.Object tag2 = vwCol.GetTag(Resource.Integer.ParameterId);
+                        int iParameterId = Convert.ToInt32(tag2);
+                        Java.Lang.Object tag4 = vwCol.GetTag(Resource.Integer.CellId);
+                        int iCellId = Convert.ToInt32(tag4);
+                        int iItemType = grdUtils.GetGridItemId(giFormId, iCellSectionId, iCellId, ref sRtnMsg);
+                        grdUtils.SaveItemAttribute(giFormId, iItemType, (int)SectionType.GridItem, iParameterId, GetDialogOldValue(vwCol.Id), ref sRtnMsg);
                         gbCloseDialog = false;
                         return;
                     }
@@ -4806,7 +5052,7 @@ namespace appBusinessFormBuilder
                 //    View vwCol = (View)sender;
                 //    if (vwCol != null)
                 //    {
-                //        SetToOldValue(vwCol.Id);
+                //        SetDialogToOldValue(vwCol.Id);
                 //        gbCloseDialog = false;
                 //        return;
                 //    }
@@ -4926,6 +5172,33 @@ namespace appBusinessFormBuilder
 
         }
 
+        public string GetDialogOldValue(int iCellId)
+        {
+            string sRtn = "";
+            TextView txt = (TextView)FindViewById(iCellId + 100);
+            if (txt != null)
+            {
+                sRtn = txt.Text;
+            }
+
+            return sRtn;
+        }
+
+        //Remember to send the dialog CELL id across not the control within the cell. 
+        public void SetDialogToOldValue(int iCellId)
+        {
+            View vw = (View)FindViewById(iCellId);
+
+            switch (vw.GetType().Name)
+            {
+                case "EditText":
+                default:
+                    TextView txt = (TextView)vw;
+                    txt.Text = GetDialogOldValue(iCellId);
+                    break;
+            }
+
+        }
     }
 
     public class Methods
@@ -5003,7 +5276,7 @@ namespace appBusinessFormBuilder
                     iColSectionId = (int)SectionType.FooterColumn;
                     break;
             }
-            int iHiddenCols = grdUtils.ColumnsHiddenInSection(iFormId, iColSectionId, ref sRtnMsg);
+            int iHiddenCols = grdUtils.ColumnsHiddenInSectionFromColumn(iFormId, iColSectionId, iColumn, ref sRtnMsg);
             if (sRtnMsg != "")
             {
                 return sRtnMsg;

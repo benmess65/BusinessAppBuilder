@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="400dip"
+    android:layout_height="400dip"
+    android:id="@+id/DialogOuterLayout1">
+    <TableLayout
+        android:id="@+id/tableDialogLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+        <TableRow
+            android:id="@+id/tableRowDialog1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dip">
+            <Button
+                android:id="@+id/btnPerformDialog1"
+                android:layout_width="180dip"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Copy Table" />
+            <Button
+                android:id="@+id/btnCloseDialog1"
+                android:layout_width="180dip"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Cancel" />
+        </TableRow>
+    </TableLayout>
+</RelativeLayout>

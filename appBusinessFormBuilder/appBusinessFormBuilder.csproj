@@ -67,10 +67,15 @@
     <Compile Include="NewFormDialog.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SQLTableManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
+    <AndroidResource Include="Resources\drawable\chkboxAqua.xml" />
+    <AndroidResource Include="Resources\drawable\chkboxAquaStates.xml" />
+    <AndroidResource Include="Resources\drawable\chkboxLightGray.xml" />
+    <AndroidResource Include="Resources\drawable\chkboxLightGrayUnchecked.xml" />
     <AndroidResource Include="Resources\layout\layoutZoom.axml">
       <SubType>AndroidResource</SubType>
     </AndroidResource>
@@ -87,6 +92,7 @@
     <AndroidResource Include="Resources\layout\textarea.axml">
       <SubType>AndroidResource</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\layoutDialog1.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\Main.axml" />
@@ -119,6 +125,72 @@
     </AndroidResource>
     <AndroidResource Include="Resources\drawable\NShapedTextBox.xml" />
     <AndroidResource Include="Resources\drawable\CShapedTextBox.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLightGray.xml" />
+    <AndroidResource Include="Resources\drawable\spinner_default_holo_light_am3.png" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerAntiqueWhite.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerBeige.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerBlack.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerBlue.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerBrown.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerCoral.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerCrimson.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerCyan.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDarkBlue.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDarkGray.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDarkGreen.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDarkOrange.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDarkRad.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDarkRed.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDarkViolet.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerDeepPink.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerGhostWhite.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerGold.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerGray.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerGreen.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerHotPink.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerIndigo.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLavender.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLightBlue.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLightCyan.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLightGreen.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLightPink.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLightYellow.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerLime.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerMagenta.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerMaroon.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerNavy.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerOlive.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerOrange.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerPaleGreen.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerPink.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerPlum.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerPurple.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerRed.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerRoyalBlue.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerSalmon.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerSilver.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerSkyBlue.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerSlateBlue.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerSlateGray.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerSnow.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerSteelBlue.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerTan.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerTeal.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerTurquoise.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerViolet.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerWheat.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerWhite.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerWhiteSmoke.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerYellow.xml" />
+    <AndroidResource Include="Resources\drawable\defaultSpinnerYellowGreen.xml" />
+    <AndroidResource Include="Resources\drawable\unchecked.png" />
+    <AndroidResource Include="Resources\drawable\checked.png" />
+    <AndroidResource Include="Resources\drawable\checked2.png" />
+    <AndroidResource Include="Resources\drawable\chkboxBlackUnchecked.xml" />
+    <AndroidResource Include="Resources\drawable\chkboxBlack.xml" />
+    <AndroidResource Include="Resources\drawable\chkboxDefaultStates.xml" />
+    <AndroidResource Include="Resources\drawable\checkedEmpty.png" />
+    <AndroidResource Include="Resources\drawable\chkboxAquaUnchecked.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TabletCommon\clsTabletCommon\clsTabletCommon.csproj">

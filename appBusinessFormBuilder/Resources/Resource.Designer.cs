@@ -76,46 +76,256 @@ namespace appBusinessFormBuilder
 		{
 			
 			// aapt resource value: 0x7f020000
-			public const int CShapedTextBox = 2130837504;
+			public const int @checked = 2130837504;
 			
 			// aapt resource value: 0x7f020001
-			public const int defaultRectangle = 2130837505;
+			public const int checked2 = 2130837505;
 			
 			// aapt resource value: 0x7f020002
-			public const int defaultSpinner = 2130837506;
+			public const int checkedEmpty = 2130837506;
 			
 			// aapt resource value: 0x7f020003
-			public const int defaultSpinner2 = 2130837507;
+			public const int chkboxAqua = 2130837507;
 			
 			// aapt resource value: 0x7f020004
-			public const int DetailButton = 2130837508;
+			public const int chkboxAquaStates = 2130837508;
 			
 			// aapt resource value: 0x7f020005
-			public const int DetailButtonNormal = 2130837509;
+			public const int chkboxAquaUnchecked = 2130837509;
 			
 			// aapt resource value: 0x7f020006
-			public const int DetailButtonPressed = 2130837510;
+			public const int chkboxBlack = 2130837510;
 			
 			// aapt resource value: 0x7f020007
-			public const int Icon = 2130837511;
+			public const int chkboxBlackUnchecked = 2130837511;
 			
 			// aapt resource value: 0x7f020008
-			public const int mycursor = 2130837512;
+			public const int chkboxDefaultStates = 2130837512;
 			
 			// aapt resource value: 0x7f020009
-			public const int NShapedTextBox = 2130837513;
+			public const int chkboxLightGray = 2130837513;
 			
 			// aapt resource value: 0x7f02000a
-			public const int spinner_default_arrow = 2130837514;
+			public const int chkboxLightGrayUnchecked = 2130837514;
 			
 			// aapt resource value: 0x7f02000b
-			public const int spinner_default_arrow2 = 2130837515;
+			public const int CShapedTextBox = 2130837515;
 			
 			// aapt resource value: 0x7f02000c
-			public const int spinner_default_holo_light_am = 2130837516;
+			public const int defaultRectangle = 2130837516;
 			
 			// aapt resource value: 0x7f02000d
-			public const int spinner_default_holo_light_am2 = 2130837517;
+			public const int defaultSpinner = 2130837517;
+			
+			// aapt resource value: 0x7f02000e
+			public const int defaultSpinner2 = 2130837518;
+			
+			// aapt resource value: 0x7f02000f
+			public const int defaultSpinnerAntiqueWhite = 2130837519;
+			
+			// aapt resource value: 0x7f020010
+			public const int defaultSpinnerBeige = 2130837520;
+			
+			// aapt resource value: 0x7f020011
+			public const int defaultSpinnerBlack = 2130837521;
+			
+			// aapt resource value: 0x7f020012
+			public const int defaultSpinnerBlue = 2130837522;
+			
+			// aapt resource value: 0x7f020013
+			public const int defaultSpinnerBrown = 2130837523;
+			
+			// aapt resource value: 0x7f020014
+			public const int defaultSpinnerCoral = 2130837524;
+			
+			// aapt resource value: 0x7f020015
+			public const int defaultSpinnerCrimson = 2130837525;
+			
+			// aapt resource value: 0x7f020016
+			public const int defaultSpinnerCyan = 2130837526;
+			
+			// aapt resource value: 0x7f020017
+			public const int defaultSpinnerDarkBlue = 2130837527;
+			
+			// aapt resource value: 0x7f020018
+			public const int defaultSpinnerDarkGray = 2130837528;
+			
+			// aapt resource value: 0x7f020019
+			public const int defaultSpinnerDarkGreen = 2130837529;
+			
+			// aapt resource value: 0x7f02001a
+			public const int defaultSpinnerDarkOrange = 2130837530;
+			
+			// aapt resource value: 0x7f02001b
+			public const int defaultSpinnerDarkRad = 2130837531;
+			
+			// aapt resource value: 0x7f02001c
+			public const int defaultSpinnerDarkRed = 2130837532;
+			
+			// aapt resource value: 0x7f02001d
+			public const int defaultSpinnerDarkViolet = 2130837533;
+			
+			// aapt resource value: 0x7f02001e
+			public const int defaultSpinnerDeepPink = 2130837534;
+			
+			// aapt resource value: 0x7f02001f
+			public const int defaultSpinnerGhostWhite = 2130837535;
+			
+			// aapt resource value: 0x7f020020
+			public const int defaultSpinnerGold = 2130837536;
+			
+			// aapt resource value: 0x7f020021
+			public const int defaultSpinnerGray = 2130837537;
+			
+			// aapt resource value: 0x7f020022
+			public const int defaultSpinnerGreen = 2130837538;
+			
+			// aapt resource value: 0x7f020023
+			public const int defaultSpinnerHotPink = 2130837539;
+			
+			// aapt resource value: 0x7f020024
+			public const int defaultSpinnerIndigo = 2130837540;
+			
+			// aapt resource value: 0x7f020025
+			public const int defaultSpinnerLavender = 2130837541;
+			
+			// aapt resource value: 0x7f020026
+			public const int defaultSpinnerLightBlue = 2130837542;
+			
+			// aapt resource value: 0x7f020027
+			public const int defaultSpinnerLightCyan = 2130837543;
+			
+			// aapt resource value: 0x7f020028
+			public const int defaultSpinnerLightGray = 2130837544;
+			
+			// aapt resource value: 0x7f020029
+			public const int defaultSpinnerLightGreen = 2130837545;
+			
+			// aapt resource value: 0x7f02002a
+			public const int defaultSpinnerLightPink = 2130837546;
+			
+			// aapt resource value: 0x7f02002b
+			public const int defaultSpinnerLightYellow = 2130837547;
+			
+			// aapt resource value: 0x7f02002c
+			public const int defaultSpinnerLime = 2130837548;
+			
+			// aapt resource value: 0x7f02002d
+			public const int defaultSpinnerMagenta = 2130837549;
+			
+			// aapt resource value: 0x7f02002e
+			public const int defaultSpinnerMaroon = 2130837550;
+			
+			// aapt resource value: 0x7f02002f
+			public const int defaultSpinnerNavy = 2130837551;
+			
+			// aapt resource value: 0x7f020030
+			public const int defaultSpinnerOlive = 2130837552;
+			
+			// aapt resource value: 0x7f020031
+			public const int defaultSpinnerOrange = 2130837553;
+			
+			// aapt resource value: 0x7f020032
+			public const int defaultSpinnerPaleGreen = 2130837554;
+			
+			// aapt resource value: 0x7f020033
+			public const int defaultSpinnerPink = 2130837555;
+			
+			// aapt resource value: 0x7f020034
+			public const int defaultSpinnerPlum = 2130837556;
+			
+			// aapt resource value: 0x7f020035
+			public const int defaultSpinnerPurple = 2130837557;
+			
+			// aapt resource value: 0x7f020036
+			public const int defaultSpinnerRed = 2130837558;
+			
+			// aapt resource value: 0x7f020037
+			public const int defaultSpinnerRoyalBlue = 2130837559;
+			
+			// aapt resource value: 0x7f020038
+			public const int defaultSpinnerSalmon = 2130837560;
+			
+			// aapt resource value: 0x7f020039
+			public const int defaultSpinnerSilver = 2130837561;
+			
+			// aapt resource value: 0x7f02003a
+			public const int defaultSpinnerSkyBlue = 2130837562;
+			
+			// aapt resource value: 0x7f02003b
+			public const int defaultSpinnerSlateBlue = 2130837563;
+			
+			// aapt resource value: 0x7f02003c
+			public const int defaultSpinnerSlateGray = 2130837564;
+			
+			// aapt resource value: 0x7f02003d
+			public const int defaultSpinnerSnow = 2130837565;
+			
+			// aapt resource value: 0x7f02003e
+			public const int defaultSpinnerSteelBlue = 2130837566;
+			
+			// aapt resource value: 0x7f02003f
+			public const int defaultSpinnerTan = 2130837567;
+			
+			// aapt resource value: 0x7f020040
+			public const int defaultSpinnerTeal = 2130837568;
+			
+			// aapt resource value: 0x7f020041
+			public const int defaultSpinnerTurquoise = 2130837569;
+			
+			// aapt resource value: 0x7f020042
+			public const int defaultSpinnerViolet = 2130837570;
+			
+			// aapt resource value: 0x7f020043
+			public const int defaultSpinnerWheat = 2130837571;
+			
+			// aapt resource value: 0x7f020044
+			public const int defaultSpinnerWhite = 2130837572;
+			
+			// aapt resource value: 0x7f020045
+			public const int defaultSpinnerWhiteSmoke = 2130837573;
+			
+			// aapt resource value: 0x7f020046
+			public const int defaultSpinnerYellow = 2130837574;
+			
+			// aapt resource value: 0x7f020047
+			public const int defaultSpinnerYellowGreen = 2130837575;
+			
+			// aapt resource value: 0x7f020048
+			public const int DetailButton = 2130837576;
+			
+			// aapt resource value: 0x7f020049
+			public const int DetailButtonNormal = 2130837577;
+			
+			// aapt resource value: 0x7f02004a
+			public const int DetailButtonPressed = 2130837578;
+			
+			// aapt resource value: 0x7f02004b
+			public const int Icon = 2130837579;
+			
+			// aapt resource value: 0x7f02004c
+			public const int mycursor = 2130837580;
+			
+			// aapt resource value: 0x7f02004d
+			public const int NShapedTextBox = 2130837581;
+			
+			// aapt resource value: 0x7f02004e
+			public const int spinner_default_arrow = 2130837582;
+			
+			// aapt resource value: 0x7f02004f
+			public const int spinner_default_arrow2 = 2130837583;
+			
+			// aapt resource value: 0x7f020050
+			public const int spinner_default_holo_light_am = 2130837584;
+			
+			// aapt resource value: 0x7f020051
+			public const int spinner_default_holo_light_am2 = 2130837585;
+			
+			// aapt resource value: 0x7f020052
+			public const int spinner_default_holo_light_am3 = 2130837586;
+			
+			// aapt resource value: 0x7f020053
+			public const int @unchecked = 2130837587;
 			
 			static Drawable()
 			{
@@ -131,46 +341,61 @@ namespace appBusinessFormBuilder
 		{
 			
 			// aapt resource value: 0x7f070000
-			public const int EmptyLayout = 2131165184;
-			
-			// aapt resource value: 0x7f070007
-			public const int MainLayout = 2131165191;
-			
-			// aapt resource value: 0x7f070002
-			public const int SpinnerListItem = 2131165186;
-			
-			// aapt resource value: 0x7f07000a
-			public const int btnCreateNewForm = 2131165194;
-			
-			// aapt resource value: 0x7f070003
-			public const int btnCreateNewForm2 = 2131165187;
-			
-			// aapt resource value: 0x7f070006
-			public const int btnCreateNewForm4 = 2131165190;
-			
-			// aapt resource value: 0x7f07000c
-			public const int btnPreferences = 2131165196;
-			
-			// aapt resource value: 0x7f070004
-			public const int btnPreferences2 = 2131165188;
+			public const int DialogOuterLayout1 = 2131165184;
 			
 			// aapt resource value: 0x7f070005
-			public const int fragment_container = 2131165189;
+			public const int EmptyLayout = 2131165189;
 			
-			// aapt resource value: 0x7f070001
-			public const int hfEditStatus = 2131165185;
+			// aapt resource value: 0x7f07000c
+			public const int MainLayout = 2131165196;
 			
-			// aapt resource value: 0x7f07000d
-			public const int tableButtonRow3 = 2131165197;
+			// aapt resource value: 0x7f070007
+			public const int SpinnerListItem = 2131165191;
+			
+			// aapt resource value: 0x7f070004
+			public const int btnCloseDialog1 = 2131165188;
+			
+			// aapt resource value: 0x7f07000f
+			public const int btnCreateNewForm = 2131165199;
 			
 			// aapt resource value: 0x7f070008
-			public const int tableHomeLayout = 2131165192;
-			
-			// aapt resource value: 0x7f070009
-			public const int tableRow1 = 2131165193;
+			public const int btnCreateNewForm2 = 2131165192;
 			
 			// aapt resource value: 0x7f07000b
-			public const int tableRow2 = 2131165195;
+			public const int btnCreateNewForm4 = 2131165195;
+			
+			// aapt resource value: 0x7f070003
+			public const int btnPerformDialog1 = 2131165187;
+			
+			// aapt resource value: 0x7f070011
+			public const int btnPreferences = 2131165201;
+			
+			// aapt resource value: 0x7f070009
+			public const int btnPreferences2 = 2131165193;
+			
+			// aapt resource value: 0x7f07000a
+			public const int fragment_container = 2131165194;
+			
+			// aapt resource value: 0x7f070006
+			public const int hfEditStatus = 2131165190;
+			
+			// aapt resource value: 0x7f070012
+			public const int tableButtonRow3 = 2131165202;
+			
+			// aapt resource value: 0x7f070001
+			public const int tableDialogLayout1 = 2131165185;
+			
+			// aapt resource value: 0x7f07000d
+			public const int tableHomeLayout = 2131165197;
+			
+			// aapt resource value: 0x7f07000e
+			public const int tableRow1 = 2131165198;
+			
+			// aapt resource value: 0x7f070010
+			public const int tableRow2 = 2131165200;
+			
+			// aapt resource value: 0x7f070002
+			public const int tableRowDialog1 = 2131165186;
 			
 			static Id()
 			{
@@ -220,25 +445,28 @@ namespace appBusinessFormBuilder
 		{
 			
 			// aapt resource value: 0x7f030000
-			public const int layoutEmpty = 2130903040;
+			public const int layoutDialog1 = 2130903040;
 			
 			// aapt resource value: 0x7f030001
-			public const int layoutSpinner = 2130903041;
+			public const int layoutEmpty = 2130903041;
 			
 			// aapt resource value: 0x7f030002
-			public const int layoutSpinnerBase = 2130903042;
+			public const int layoutSpinner = 2130903042;
 			
 			// aapt resource value: 0x7f030003
-			public const int layoutZoom = 2130903043;
+			public const int layoutSpinnerBase = 2130903043;
 			
 			// aapt resource value: 0x7f030004
-			public const int Main = 2130903044;
+			public const int layoutZoom = 2130903044;
 			
 			// aapt resource value: 0x7f030005
-			public const int textarea = 2130903045;
+			public const int Main = 2130903045;
 			
 			// aapt resource value: 0x7f030006
-			public const int textbox = 2130903046;
+			public const int textarea = 2130903046;
+			
+			// aapt resource value: 0x7f030007
+			public const int textbox = 2130903047;
 			
 			static Layout()
 			{

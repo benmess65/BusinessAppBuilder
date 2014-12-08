@@ -6,6 +6,7 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Data;
+using System.Text.RegularExpressions;
 
 using Android.App;
 using Android.Content;
@@ -692,6 +693,8 @@ namespace appBusinessFormBuilder
             string m_sRadioGroupLabels = "";
             string m_sRadioGroupValues = "";
             string m_chkboxLabel = "chkBox0";
+            string m_sDDBgColor = "defaultSpinnerWhite";
+            bool bForcedHeight = false;
 
             //Text stuff
             Typeface m_Typeface = Typeface.SansSerif;
@@ -782,6 +785,11 @@ namespace appBusinessFormBuilder
                 }
             }
 
+            public void SetRowHeightForced(int iHeight)
+            {
+                m_iRowHeight = iHeight;
+                bForcedHeight = true;
+            }
             //public void SetControlHeight(int iHeight)
             //{
             //    m_ControlHeight = iHeight;
@@ -833,6 +841,12 @@ namespace appBusinessFormBuilder
             public void SetRadioGroupHighlightColor(string sColor)
             {
                 SetColor(sColor, (int)ColorType.Gridlines);
+            }
+
+            public void SetDropDownBackgroundColor(string sColor)
+            {
+                sColor = Regex.Replace(sColor, @"\s+", "");
+                m_sDDBgColor = "defaultSpinner" + sColor.Trim();
             }
 
             public void SetColor(string sColor, int iType)
@@ -917,7 +931,7 @@ namespace appBusinessFormBuilder
                 TableLayout table = new TableLayout(m_context);
                 table.SetBackgroundColor(m_GridlineColor);
 
-                if (m_bShowGridLines)
+                if (m_bShowGridLines && !bForcedHeight)
                 {
                     table.SetPadding(m_iGridlineWeight, m_iGridlineWeight, m_iGridlineWeight, m_iGridlineWeight);
                     fExtraPadding = 2 * m_iGridlineWeight;
@@ -940,37 +954,39 @@ namespace appBusinessFormBuilder
                 row.LayoutParameters = params1;
                 row.SetGravity(GravityFlags.Center);
 
-                if (m_iBuildType == 1)
-                {
-                    if (m_width < ConvertPixelsToDp(iMinimumWidthBuild))
+                    if (m_iBuildType == 1)
                     {
-                        m_width = ConvertPixelsToDp(iMinimumWidthBuild);
-                    }
+                        if (m_width < ConvertPixelsToDp(iMinimumWidthBuild))
+                        {
+                            m_width = ConvertPixelsToDp(iMinimumWidthBuild);
+                        }
 
-                    iMinimumBuildHeight = 64 + m_iTopPaddingCell + m_iBottomPaddingCell;
-                    if (m_iRowHeight < ConvertPixelsToDp(iMinimumBuildHeight))
+                        iMinimumBuildHeight = 64 + m_iTopPaddingCell + m_iBottomPaddingCell;
+                        if (m_iRowHeight < ConvertPixelsToDp(iMinimumBuildHeight))
+                        {
+                            m_iRowHeight = ConvertPixelsToDp(iMinimumBuildHeight);
+                        }
+
+                        //if (m_ControlHeight < ConvertPixelsToDp(iMinimumHeight))
+                        //{
+                        //    m_ControlHeight = ConvertPixelsToDp(iMinimumHeight);
+                        //}
+                    }
+                    else
                     {
-                        m_iRowHeight = ConvertPixelsToDp(iMinimumBuildHeight);
-                    }
+                        if (m_width < ConvertPixelsToDp(iMinimumWidth))
+                        {
+                            m_width = ConvertPixelsToDp(iMinimumWidth);
+                        }
 
-                    //if (m_ControlHeight < ConvertPixelsToDp(iMinimumHeight))
-                    //{
-                    //    m_ControlHeight = ConvertPixelsToDp(iMinimumHeight);
-                    //}
-                }
-                else
-                {
-                    if (m_width < ConvertPixelsToDp(iMinimumWidth))
-                    {
-                        m_width = ConvertPixelsToDp(iMinimumWidth);
+                        if (!bForcedHeight)
+                        {
+                            if (m_iRowHeight < ConvertPixelsToDp(iMinimumHeight))
+                            {
+                                m_iRowHeight = ConvertPixelsToDp(iMinimumHeight);
+                            }
+                        }
                     }
-
-                    if (m_iRowHeight < ConvertPixelsToDp(iMinimumHeight))
-                    {
-                        m_iRowHeight = ConvertPixelsToDp(iMinimumHeight);
-                    }
-                }
-
 
 
                 row.SetPadding(ConvertPixelsToDp(m_iLeftPaddingCell), ConvertPixelsToDp(m_iTopPaddingCell), ConvertPixelsToDp(m_iRightPaddingCell), ConvertPixelsToDp(m_iBottomPaddingCell));
@@ -992,13 +1008,14 @@ namespace appBusinessFormBuilder
                         txt.SetTextColor(m_TextColor);
                         txt.SetTextSize(ComplexUnitType.Pt, m_iTextSize);
                         txt.SetTypeface(m_Typeface, m_TypefaceStyle);
-                        if (iType == (int)ItemType.ColumnHeader || iType == (int)ItemType.ColumnDetail || iType == (int)ItemType.ColumnFooter)
+
+                        if ((iType == (int)ItemType.ColumnHeader || iType == (int)ItemType.ColumnDetail || iType == (int)ItemType.ColumnFooter) && m_iBuildType == 1)
                         {
                             txt.SetBackgroundResource(appBusinessFormBuilder.Resource.Drawable.NShapedTextBox);
                             GradientDrawable bgShape = (GradientDrawable)txt.Background;
                             bgShape.SetColor(Android.Graphics.Color.Wheat);
                         }
-                        else if (iType == (int)ItemType.RowHeader || iType == (int)ItemType.RowDetail || iType == (int)ItemType.RowFooter)
+                        else if ((iType == (int)ItemType.RowHeader || iType == (int)ItemType.RowDetail || iType == (int)ItemType.RowFooter) && m_iBuildType == 1)
                         {
                             txt.SetBackgroundResource(appBusinessFormBuilder.Resource.Drawable.CShapedTextBox);
                             GradientDrawable bgShape = (GradientDrawable)txt.Background;
@@ -1212,7 +1229,17 @@ namespace appBusinessFormBuilder
                         lp.Width = m_width - ConvertPixelsToDp(fExtraPadding + m_iLeftPaddingCell + m_iRightPaddingCell);
                         lp.Height = m_iRowHeight - ConvertPixelsToDp(m_iTopPaddingCell + m_iBottomPaddingCell);
                         cmbEdit0.LayoutParameters = lp;
-                        cmbEdit0.SetBackgroundResource(Resource.Drawable.defaultSpinner2);
+
+                        //Get a resource from a string
+                        int ibgResId = (int)typeof(Resource.Drawable).GetField(m_sDDBgColor).GetValue(null);
+                        if (ibgResId > 0)
+                        {
+                            cmbEdit0.SetBackgroundResource(ibgResId);
+                        }
+                        else
+                        {
+                            cmbEdit0.SetBackgroundResource(Resource.Drawable.defaultSpinner2);
+                        }
 
                         cmbEdit0.SetSelection(iSelectedIndex);
 
@@ -1303,6 +1330,7 @@ namespace appBusinessFormBuilder
                             chkBox.Checked = true;
                         }
 
+                        chkBox.SetButtonDrawable(Resource.Drawable.chkboxDefaultStates);
                         row.AddView(chkBox);
                         m_ChkBox = chkBox;
                         break;
