@@ -362,6 +362,7 @@ namespace appBusinessFormBuilder
                 progBarDB.ShowProgressBar(100);
             //});
             this.StartActivity(bldScreen);
+            progBarDB.CloseProgressBar();
         }
 
         public void OpenMore(object sender, EventArgs e)

@@ -1,0 +1,6 @@
+insert into tblben (Name) values ('Person A');
+insert into tblben (Name) values ('Person B');
+insert into tblben (Name) values ('Person C');
+insert into tblben (Name) values ('Person D');
+insert into tblben (Name) values ('Person E');
+select * from tblBen;

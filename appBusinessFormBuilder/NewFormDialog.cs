@@ -251,6 +251,13 @@ namespace appBusinessFormBuilder
                 return;
             }
 
+            if(grdUtils.FormNameExists(iFormId, sFormName, ref sRtnMsg))
+            {
+                alert.SetAlertMessage("The form name " + sFormName + " already exists. Please choose another name.");
+                this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                return;
+            }
+
             if (!grdUtils.SaveFormDetails(sFormName, sFormDescription, ref iFormId, ref sRtnMsg))
             {
                 alert.SetAlertMessage("Failure saving form information. " + sRtnMsg);

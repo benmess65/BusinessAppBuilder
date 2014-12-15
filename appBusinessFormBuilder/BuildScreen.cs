@@ -29,12 +29,14 @@ namespace appBusinessFormBuilder
     public class BuildScreen : Activity //, View.IOnTouchListener
     {
         //Globals for use through out this activity
+        Bundle gbundle;
         Context this_context;
         RelativeLayout mainView;
         HorizontalScrollView mainHSV;
         ScrollView mainSV;
         LinearLayout llMain;
         int giDialogOpen = 0;
+        int giRequestCode = 100;
         bool gbCloseDialog = true;
         AndroidUtils.AlertBox alert = new AndroidUtils.AlertBox();
         int giFormId = -1;
@@ -184,24 +186,7 @@ namespace appBusinessFormBuilder
                 PopulateTables();
             }
 
-            if (bundle != null)
-            {
-                gbtnSenderId = bundle.GetInt("btnSender");
-                gbtnSenderType = bundle.GetInt("SenderType");
-                int iScrollYPosn = bundle.GetInt("SenderScrollY");
-
-                Button btn = (Button)FindViewById(gbtnSenderId);
-                if (btn != null && gbtnSenderType > 0)
-                {
-                    OpenDetailDialog(btn, null, gbtnSenderType);
-                    ScrollView svDialog = (ScrollView)FindViewById(20);
-                    if (svDialog != null)
-                    {
-                        svDialog.Post(new Action(() => svDialog.ScrollTo(0, iScrollYPosn)));
-                    }
-                }
-            }
-
+            gbundle = bundle;
             //// Create your application here
             //View vw = new GestureRecognizerView(this);
             //SetContentView(vw);
@@ -214,6 +199,82 @@ namespace appBusinessFormBuilder
 
         }
 
+        protected override void OnResume()
+        {
+            base.OnResume();
+            Bundle bundle;
+            bundle = gbundle;
+            if (bundle != null)
+            {
+                gbtnSenderId = bundle.GetInt("btnSender");
+                gbtnSenderType = bundle.GetInt("SenderType");
+                int iScrollYPosn = bundle.GetInt("SenderScrollY");
+                giDialogOpen = bundle.GetInt("DialogOpen");
+
+                Button btn = (Button)FindViewById(gbtnSenderId);
+                if (btn != null && gbtnSenderType > 0)
+                {
+                    if (giDialogOpen == 1)
+                    {
+                        giDialogOpen = 0;
+                        OpenDetailDialog(btn, null, gbtnSenderType);
+                        ScrollView svDialog = (ScrollView)FindViewById(20);
+                        if (svDialog != null)
+                        {
+                            svDialog.Post(new Action(() => svDialog.ScrollTo(0, iScrollYPosn)));
+                        }
+                    }
+                }
+            }
+        }
+
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            LocalDB DB = new LocalDB();
+            string sRtnMsg = "";
+            int j= 0;
+            string sSQLString = "";
+
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (resultCode == Result.Ok)
+            {
+
+                int iParameterCellId = data.GetIntExtra("ParameterCellId", -1);
+                EditText txtSQL = (EditText)FindViewById(iParameterCellId);
+                if (txtSQL != null)
+                {
+                    txtSQL.Text = data.GetStringExtra("ExistingSQL");
+                }
+                Spinner ddUniqueKey = (Spinner)FindViewById(iParameterCellId + 1);
+                if(ddUniqueKey != null)
+                {
+                    AndroidUtils.ComboBox cmbBox = new AndroidUtils.ComboBox();
+                    ArrayAdapter arrCmbItems = new ArrayAdapter(this_context, Resource.Layout.layoutSpinner); //This is the resource for the main box
+                    ArrayList arrTables = DB.GetTableNamesFromSQL(data.GetStringExtra("ExistingSQL"), ref sRtnMsg);
+                    if (arrTables.Count > 1)
+                    {
+                        ArrayList arrAlias = (ArrayList)arrTables[1];
+                        for (j = 0; j < arrAlias.Count; j++)
+                        {
+                            sSQLString += arrAlias[j] + ".UniqueId;";
+                        }
+                        //if (sSQLString.Length > 0)
+                        //{
+                        //    sSQLString = sSQLString.Substring(0, sSQLString.Length - 1);
+                        //}
+                        int iSelectedIndex = cmbBox.PopulateAdapter(ref arrCmbItems, sSQLString, "", false, ref sRtnMsg);
+                        arrCmbItems.SetDropDownViewResource(Resource.Layout.layoutSpinnerBase); //This is the resource for the drop down
+                        ddUniqueKey.Adapter = arrCmbItems;
+                        if (iSelectedIndex < 0)
+                        {
+                            iSelectedIndex = 0;
+                        }
+                        ddUniqueKey.SetSelection(iSelectedIndex);
+                    }
+                }
+            }
+        }
+        
         protected override void OnSaveInstanceState(Bundle outState)
         {
             base.OnSaveInstanceState(outState);
@@ -226,6 +287,7 @@ namespace appBusinessFormBuilder
             outState.PutInt("btnSender", gbtnSenderId);
             outState.PutInt("SenderType", gbtnSenderType);
             outState.PutInt("SenderScrollY", iScrollYPosn);
+            outState.PutInt("DialogOpen", giDialogOpen);
         }
 
         public ScrollView DrawOpeningPage(Android.Content.Context context)
@@ -468,6 +530,11 @@ namespace appBusinessFormBuilder
                     garrDBColumns = (ArrayList)garrDBRecords[0];
                     garrDBValues = (ArrayList)garrDBRecords[1];
                 }
+
+                if (garrDBRecords.Count == 1)
+                {
+                    garrDBColumns = (ArrayList)garrDBRecords[0];
+                }
             }
 
                 //If some rows and columns exist in the DB then populate the tables for each section
@@ -499,6 +566,7 @@ namespace appBusinessFormBuilder
             gbtnSenderId = vwSender.Id;
             gbtnSenderType = iType;
             int iInnerViewType = -1;
+            HorizontalScrollView hsv = new HorizontalScrollView(this_context);
             ScrollView sv = new ScrollView(this_context);
             sv.Id = 20;
             string sHeaderText = "";
@@ -800,7 +868,8 @@ namespace appBusinessFormBuilder
             rowMainDialog.Id = iId - 3;
             table.AddView(rowMainDialog);
             sv.AddView(table);
-            rl.AddView(sv);
+            hsv.AddView(sv);
+            rl.AddView(hsv);
             mainView.AddView(rl, params1);
 
             //Now also disable the use of any other dialogs so that no other buttons are pressed whilst the dialog is open
@@ -810,6 +879,7 @@ namespace appBusinessFormBuilder
         private TableLayout MakeDetailDialogMainTable(int iId, int iType, int iItemId, int iCellId, int iSectionId, bool bTypeChanged, int iCellSectionId)
         {
             int i = 0;
+            int j = 0;
             int iLabelWidth = iDetailDialogLabelWidth;
             int iItemWidth = iDetailDialogItemWidth;
             int iExtraItemWidth = iDetailDialogItemExtraWidth;
@@ -821,7 +891,7 @@ namespace appBusinessFormBuilder
             string sRtnMsg = "";
             int iRow = GetRowNoFromCellId(iCellId, iSectionId, 1);
             int iCol = GetColumnNoFromCellId(iCellId, iSectionId, 1);
-
+            string sSQL = "";
             int iPaddingMargin1 = ConvertPixelsToDp(5);
             int iPaddingMargin2 = ConvertPixelsToDp(1);
 
@@ -951,6 +1021,11 @@ namespace appBusinessFormBuilder
                                 txtEdit1.Text = "1";
                             }
                         }
+
+                        if (arrNames[i].ToString() == "FormSQL" && iType == (int)SectionType.Form)
+                        {
+                            sSQL = arrValues[i].ToString();
+                        }
                         break;
 
                     case (int)ItemType.TextArea:
@@ -992,7 +1067,25 @@ namespace appBusinessFormBuilder
                         //Now get the info from the database for the drop down items
                         //arrCmbItems.Add("Yes");
                         //arrCmbItems.Add("No");
-                        int iSelectedIndex = cmbBox.PopulateAdapter(ref arrCmbItems, arrSQL[i].ToString(), arrValues[i].ToString(), false, ref sRtnMsg);
+                        string sSQLString = "";
+                        if (arrNames[i].ToString() == "FormKeyColumn" && iType == (int)SectionType.Form)
+                        {
+                            ArrayList arrTables = DB.GetTableNamesFromSQL(sSQL, ref sRtnMsg);
+                            if (arrTables.Count > 1)
+                            {
+
+                                ArrayList arrAlias = (ArrayList)arrTables[1];
+                                for (j = 0; j < arrAlias.Count; j++)
+                                {
+                                    sSQLString += arrAlias[j].ToString() + ".UniqueId;";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            sSQLString = arrSQL[i].ToString();
+                        }
+                        int iSelectedIndex = cmbBox.PopulateAdapter(ref arrCmbItems, sSQLString, arrValues[i].ToString(), false, ref sRtnMsg);
                         arrCmbItems.SetDropDownViewResource(Resource.Layout.layoutSpinnerBase); //This is the resource for the drop down
                         Spinner cmbEdit1 = new Spinner(this_context);
                         cmbEdit1.Adapter = arrCmbItems;
@@ -1005,6 +1098,10 @@ namespace appBusinessFormBuilder
                         lp.Height = ConvertPixelsToDp(34);
                         cmbEdit1.LayoutParameters = lp;
                         cmbEdit1.SetBackgroundResource(Resource.Drawable.defaultSpinner2);
+                        if (iSelectedIndex < 0)
+                        {
+                            iSelectedIndex = 0;
+                        }
 
                         cmbEdit1.SetSelection(iSelectedIndex);
                         cmbEdit1.SetTag(Resource.Integer.CellType, arrTypeOfControl[i]);
@@ -1091,7 +1188,8 @@ namespace appBusinessFormBuilder
                     switch(sFuncName)
                     {
                         case "OpenSQLManager":
-                            btnExtra.Click += (senderextra, args) => { OpenSQLManager(senderextra, args); };
+                            int iParameterId = Convert.ToInt32(arrId[i]);
+                            btnExtra.Click += (senderextra, args) => { OpenSQLManager(senderextra, args,iParameterId, iItemId, iCellSectionId); };
                             break;
                     }
                     row1.AddView(btnExtra);
@@ -1139,12 +1237,41 @@ namespace appBusinessFormBuilder
             return table;
         }
 
-        public void OpenSQLManager(object sender, EventArgs e)
+        public void OpenSQLManager(object sender, EventArgs e, int iParameterId, int iItemId, int iSectionTypeId)
         {
-            var SQLScreen = new Intent(this, typeof(SQLTableManager));
-            //SQLScreen.PutExtra("BuildNew", iBuild);
-            //SQLScreen.PutExtra("FormId", iFormId);
-            this.StartActivity(SQLScreen);
+            clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
+            string sRtnMsg = "";
+            bool bRtn = grdUtils.UserTablesExist(ref sRtnMsg);
+            if (sRtnMsg != "")
+            {
+                alert.SetAlertMessage(sRtnMsg);
+                this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                return;
+            }
+            //If there are no user tables go to the table manager, otherwise go to the Query manager
+            if (bRtn)
+            {
+                Button btn = (Button)sender;
+                int iViewId = btn.Id - 300; //This is the label ,edit text etc
+                EditText txt = (EditText)FindViewById(iViewId);
+                string sSQLValue = txt.Text;
+                var SQLQueryScreen = new Intent(this, typeof(SQLQueryManager));
+                SQLQueryScreen.PutExtra("ExistingSQL", sSQLValue);
+                SQLQueryScreen.PutExtra("FormId", giFormId);
+                SQLQueryScreen.PutExtra("ItemId", iItemId);
+                SQLQueryScreen.PutExtra("ParameterId", iParameterId);
+                SQLQueryScreen.PutExtra("SectionTypeId", iSectionTypeId);
+                SQLQueryScreen.PutExtra("ParameterCellId", iViewId);
+                //SQLScreen.PutExtra("FormId", iFormId);
+                this.StartActivityForResult(SQLQueryScreen, giRequestCode);
+            }
+            else
+            {
+                var SQLScreen = new Intent(this, typeof(SQLTableManager));
+                //SQLScreen.PutExtra("BuildNew", iBuild);
+                //SQLScreen.PutExtra("FormId", iFormId);
+                this.StartActivity(SQLScreen);
+            }
         }
 
         public bool DialogTextOnBlur(object sender, EventArgs e, string sMethodName)
@@ -1975,7 +2102,6 @@ namespace appBusinessFormBuilder
         private void CloseDetailDialog(object sender, EventArgs e, int iRLViewId, int iType)
         {
             RelativeLayout rl = (RelativeLayout)FindViewById(iRLViewId);
-            ScrollView sv = (ScrollView)FindViewById(20);
             mainView.RemoveView(rl);
 
             //Now also reenable any buttons etc
@@ -2817,6 +2943,8 @@ namespace appBusinessFormBuilder
             int iTotalRows = 1;
             string sItalic = "Yes";
             string sBold = "No";
+            int iUniqueRecordId = -1;
+            string sKeyColumnName = "";
 
             if (iItemType == (int)SectionType.GridItem)
             {
@@ -2824,9 +2952,11 @@ namespace appBusinessFormBuilder
                 {
                     return null;
                 }
+
+                //Get the unique record key from the form attributes
+                sKeyColumnName = grdUtils.GetItemAttribute(giFormId, (int)SectionType.Form, -1, "KeyColumn", ref sRtnMsg);
             }
 
-            
             switch (iSectionTypeId)
             {
                 case (int)SectionType.Header:
@@ -3300,16 +3430,29 @@ namespace appBusinessFormBuilder
                         {
                             for (k = 0; k < garrDBColumns.Count; k++)
                             {
+                                if (sKeyColumnName == garrDBColumns[k].ToString())
+                                {
+                                    iUniqueRecordId = Convert.ToInt32(arrThisRecordValues[k]);
+                                }
+
                                 if (garrDBColumns[k].ToString() == sBoundColumn)
                                 {
                                     sText = arrThisRecordValues[k].ToString();
-                                    break;
                                 }
                             }
                         }
                         else
                         {
-                            sText = "Error with bound column";
+                            if (garrDBColumns != null)
+                            {
+                                //This is a new record
+                                iUniqueRecordId = -1;
+                                sText = "";
+                            }
+                            else
+                            {
+                                sText = "Error with bound column";
+                            }
                         }
                     }
                 }
@@ -3323,6 +3466,7 @@ namespace appBusinessFormBuilder
             //Set some more attributes
             bv.SetRowWidth(iColWidth);
             bv.SetText(sText);
+            bv.SetKey(iUniqueRecordId);
             bv.SetRecordCounter(iRecord);
 
             if (sRowHeight != "")
@@ -4854,15 +4998,80 @@ namespace appBusinessFormBuilder
             try
             {
                 // Evaluate the current expression
+                LocalDB DB = new LocalDB();
+                string sRtnMsg = "";
                 Eval eval = new Eval();
                 bool bRtn = true;
                 //Get the info out of the method name
                 sMethodName = ProcessMethodName(sender, sMethodName);
-                eval.ProcessFunction += (send, funce) => {ProcessFunction(sender, funce); };
-                eval.ProcessSymbol += ProcessSymbol;
-                string dblResult = eval.Execute(sMethodName);
-                string sResult = eval.sResultAsString;
-                return bRtn;
+                //if (sMethodName.StartsWith("ValidateSQL"))
+                //{
+                //    int iStart = sMethodName.IndexOf("(");
+                //    int iEnd = sMethodName.LastIndexOf(")");
+                //    string sSQL = sMethodName.Substring(iStart +1, iEnd - iStart - 1).Trim();
+                //    if (!DB.CheckSQLSyntax(sSQL, ref sRtnMsg))
+                //    {
+                //        alert.SetAlertMessage(sRtnMsg);
+                //        this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                //        if (giDialogOpen == 1)
+                //        {
+                //            gbCloseDialog = false;
+                //        }
+                //        return false;
+                //    }
+                //    else
+                //    {
+                //        if (sMethodName.StartsWith("ValidateSQLDropDown"))
+                //        {
+                //            if (!sSQL.ToUpper().StartsWith("SELECT"))
+                //            {
+                //                alert.SetAlertMessage("You must have a select query for a drop down");
+                //                this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                //                if (giDialogOpen == 1)
+                //                {
+                //                    gbCloseDialog = false;
+                //                }
+                //                return false;
+                //            }
+                //            else
+                //            {
+                //                ArrayList arrCols = DB.GetColumnNamesFromSQL(sSQL, ref sRtnMsg);
+                //                if (arrCols == null)
+                //                {
+                //                    alert.SetAlertMessage(sRtnMsg);
+                //                    this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                //                    if (giDialogOpen == 1)
+                //                    {
+                //                        gbCloseDialog = false;
+                //                    }
+                //                    return false;
+                //                }
+                //                else
+                //                {
+                //                    if (arrCols.Count > 1)
+                //                    {
+                //                        alert.SetAlertMessage("You can only have 1 column in the select SQL for a drop down");
+                //                        this.RunOnUiThread(() => { alert.ShowAlertBox(); });
+                //                        if (giDialogOpen == 1)
+                //                        {
+                //                            gbCloseDialog = false;
+                //                        }
+                //                        return false;
+                //                    }
+                //                }
+                //            }
+                //        }
+                //        return true;
+                //    }
+                //}
+                //else
+                //{
+                    eval.ProcessFunction += (send, funce) => { ProcessFunction(sender, funce); };
+                    eval.ProcessSymbol += ProcessSymbol;
+                    string dblResult = eval.Execute(sMethodName);
+                    string sResult = eval.sResultAsString;
+                    return bRtn;
+                //}
             }
             catch (EvalException ex)
             {
@@ -4917,7 +5126,14 @@ namespace appBusinessFormBuilder
                         case "EditText":
                         default:
                             EditText vwEdit = (EditText)vw;
-                            sRtnMethodName = sRtnMethodName.Replace("this.value", vwEdit.Text);
+                            if (vwEdit.Text == "")
+                            {
+                                sRtnMethodName = sRtnMethodName.Replace("this.value", " ");
+                            }
+                            else
+                            {
+                                sRtnMethodName = sRtnMethodName.Replace("this.value", vwEdit.Text);
+                            }
                             break;
                     }
                 }
@@ -4969,6 +5185,7 @@ namespace appBusinessFormBuilder
             clsLocalUtils utils = new clsLocalUtils();
             string sResult;
             clsTabletDB.GridUtils grdUtils = new clsTabletDB.GridUtils();
+            LocalDB DB = new LocalDB();
             string sRtnMsg = "";
 
             if (String.Compare(e.Name, "abs", true) == 0)
@@ -5062,6 +5279,46 @@ namespace appBusinessFormBuilder
                 //    gbCloseDialog = true;
                 //}
             }
+            else if (String.Compare(e.Name, "ValidateFormName", true) == 0)
+            {
+                if (e.Parameters.Count == 1)
+                {
+                    if (!grdUtils.FormNameExists(giFormId, e.ParametersString[0], ref sRtnMsg))
+                    {
+                        e.Result = 0;
+                        e.ResultString = e.Result.ToString();
+                        gbCloseDialog = true;
+                    }
+                    else
+                    {
+                        alert.SetAlertMessage("Form name " + e.ParametersString[0] + " already exists. Please choose another name.");
+                        alert.ShowAlertBox();
+                        gbCloseDialog = false;
+                    }
+                }
+                else
+                    e.Status = FunctionStatus.WrongParameterCount;
+            }
+            else if (String.Compare(e.Name, "ValidateSQL", true) == 0)
+            {
+                if (e.Parameters.Count == 1)
+                {
+                    if (DB.CheckSQLSyntax(e.ParametersString[0], ref sRtnMsg))
+                    {
+                        e.Result = 0;
+                        e.ResultString = e.Result.ToString();
+                        gbCloseDialog = true;
+                    }
+                    else
+                    {
+                        alert.SetAlertMessage(sRtnMsg);
+                        alert.ShowAlertBox();
+                        gbCloseDialog = false;
+                    }
+                }
+                else
+                    e.Status = FunctionStatus.WrongParameterCount;
+            }
             else if (String.Compare(e.Name, "If", true) == 0)
             {
                 if (e.Parameters[0] == 0)
@@ -5121,7 +5378,10 @@ namespace appBusinessFormBuilder
                 }
             }
             // Unknown function name
-            else e.Status = FunctionStatus.UndefinedFunction;
+            else
+            {
+                e.Status = FunctionStatus.UndefinedFunction;
+            }
 
             return;
         }
@@ -5133,12 +5393,6 @@ namespace appBusinessFormBuilder
             {
                 e.Result = Math.PI;
                 e.ResultString = Math.PI.ToString();
-            }
-            else if (e.Name.GetType().Name.ToUpper() == "STRING")
-            {
-                e.Result = 0;
-                e.ResultString = e.Name;
-                return;
             }
             // Unknown symbol name
             else e.Status = SymbolStatus.UndefinedSymbol;

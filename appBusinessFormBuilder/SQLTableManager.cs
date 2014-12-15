@@ -30,6 +30,7 @@ namespace appBusinessFormBuilder
         RelativeLayout llMain;
         AndroidUtils.AlertBox alert = new AndroidUtils.AlertBox();
         Dialog gDialogOpen;
+        string gsExistingSQL = "";
 
         //Ids for various parts of the screen
         int iMainOutermostTableId = 10; //This is the very outermost table.
@@ -101,6 +102,7 @@ namespace appBusinessFormBuilder
             this_context = this;
             //mainView = new AndroidUtils.ScaleImageView(this);
             //SetContentView(mainView);
+            gsExistingSQL = Intent.GetStringExtra("ExistingSQL");
 
             SetContentView(Resource.Layout.layoutEmpty);
             mainView = (RelativeLayout)FindViewById(Resource.Id.EmptyLayout);
@@ -646,8 +648,8 @@ namespace appBusinessFormBuilder
             //Now add a string semi colon separated for the drop down items
             if (bFirstRow)
             {
-                sSelections = "Integer Primary Key AutoIncrement;float;nvarchar";
-                sType = "Integer Primary Key AutoIncrement";
+                sSelections = "INTEGER PRIMARY KEY AUTOINCREMENT;float;nvarchar";
+                sType = "INTEGER PRIMARY KEY AUTOINCREMENT";
             }
             else
             {
@@ -819,7 +821,7 @@ namespace appBusinessFormBuilder
 
                 AlertDialog ad = new AlertDialog.Builder(this).Create();
                 ad.SetCancelable(false); // This blocks the 'BACK' button  
-                ad.SetMessage("You have unsaved changes. Do you wish to save these changes");
+                ad.SetMessage("You have unsaved changes. Do you wish to save these changes?");
                 ad.SetButton("Yes", (s, ee) => { SaveTable(s, ee, sTableName); });
                 ad.SetButton2("No", (s, ee) => { ShowTable(s, ee, sTableName); });
                 ad.Show();
@@ -890,35 +892,37 @@ namespace appBusinessFormBuilder
 
             ArrayList arrColDetails = DB.GetTableColumnDetails(sTableName, ref sRtnMsg);
 
-            //Now for each piece of info in the array we need to build a row
-            arrColNames = (ArrayList)arrColDetails[0];
-            arrColTypes = (ArrayList)arrColDetails[1];
-            arrColSize = (ArrayList)arrColDetails[2];
-            arrNull = (ArrayList)arrColDetails[3];
-            iRows = arrColNames.Count;
-
-            TableLayout table = (TableLayout)FindViewById(iColumnsTable);
-
-            for (i = 0; i < iRows; i++)
+            if (arrColDetails.Count > 0)
             {
-                if(arrNull[i].ToString() == "0")
+                //Now for each piece of info in the array we need to build a row
+                arrColNames = (ArrayList)arrColDetails[0];
+                arrColTypes = (ArrayList)arrColDetails[1];
+                arrColSize = (ArrayList)arrColDetails[2];
+                arrNull = (ArrayList)arrColDetails[3];
+                iRows = arrColNames.Count;
+
+                TableLayout table = (TableLayout)FindViewById(iColumnsTable);
+
+                for (i = 0; i < iRows; i++)
                 {
-                    bNull = true;
+                    if (arrNull[i].ToString() == "0")
+                    {
+                        bNull = true;
+                    }
+                    else
+                    {
+                        bNull = false;
+                    }
+                    TableRow row = MakeTableManagerTableRow(i + 1, arrColNames[i].ToString(), arrColTypes[i].ToString(), arrColSize[i].ToString(), bNull, i == 0 ? true : false);
+                    if (row != null)
+                    {
+                        table.AddView(row);
+                    }
                 }
-                else
-                {
-                    bNull = false;
-                }
-                TableRow row = MakeTableManagerTableRow(i + 1, arrColNames[i].ToString(), arrColTypes[i].ToString(), arrColSize[i].ToString(), bNull, i == 0 ? true : false);
-                if (row != null)
-                {
-                    table.AddView(row);
-                }
+
+                Button btnAdd = (Button)FindViewById(iColumnAddButtonId);
+                btnAdd.Enabled = true;
             }
-
-            Button btnAdd = (Button)FindViewById(iColumnAddButtonId);
-            btnAdd.Enabled = true;
-
             return;
         }
 
@@ -998,7 +1002,7 @@ namespace appBusinessFormBuilder
             string sAlertMsg2 = "You cannot have any blank columns. The columns that are blank are row Ids ";
             string sAlertMsg3 = "You cannot have any columns with type that is '[select]'. Please fix these columns which are row Ids ";
             string sAlertMsg4 = "All coumns of type 'nvarchar' require a size. Please fix these columns which are row Ids ";
-            string sAlertMsg5 = "There could be some loss of data because you are changing column types or changing column sizing.";
+            string sAlertMsg5 = "There could be some loss of data because you are changing column types or changing column sizing. Do you wish to continue?";
 
             for (j = 1; j < table.ChildCount; j++)
             {
@@ -1140,6 +1144,11 @@ namespace appBusinessFormBuilder
                     else
                     {
                         sNull = " NOT NULL";
+                    }
+
+                    if (sCombo1 == "INTEGER PRIMARY KEY AUTOINCREMENT")
+                    {
+                        sNull = "";
                     }
 
                     if (sCombo1 == "nvarchar")
@@ -2023,6 +2032,14 @@ namespace appBusinessFormBuilder
             return true;
         }
 
+        public override void OnBackPressed()
+        {
+            Intent scrnSQLQuery = new Intent(this, typeof(SQLQueryManager));
+            scrnSQLQuery.PutExtra("ExistingSQL", gsExistingSQL);
+            SetResult(Result.Ok, scrnSQLQuery);
+            base.OnBackPressed();
+        }
+
         public void SetAnyValueChanged()
         {
             TextView changes = FindViewById<TextView>(iUnsavedChangedDialogId);
@@ -2092,5 +2109,7 @@ namespace appBusinessFormBuilder
             var dp = (int)((pixelValue) * Resources.DisplayMetrics.Density);
             return dp;
         }
+
+        
     }
 }

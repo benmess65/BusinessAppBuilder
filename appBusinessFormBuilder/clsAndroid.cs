@@ -668,6 +668,7 @@ namespace appBusinessFormBuilder
             ImageView m_Image;
             Bitmap m_Bitmap;
             int m_width;
+            int m_Key = -1;
             float m_density;
             int m_cellid;
             bool m_bShowGridLines = false;
@@ -736,6 +737,11 @@ namespace appBusinessFormBuilder
             public void SetText(string sText)
             {
                 m_text = sText;
+            }
+
+            public void SetKey(int iKey)
+            {
+                m_Key = iKey;
             }
 
             public void SetRecordCounter(int iRecordCounter)
@@ -1723,16 +1729,6 @@ namespace appBusinessFormBuilder
                         m_TPbtn = btnTP;
                         break;
                 }
-                
-                //In every case add a hidden textview that holds the original value
-                if (iType != (int)ItemType.ColumnHeader && iType != (int)ItemType.RowHeader)
-                {
-                    TextView txtHidden = new TextView(m_context);
-                    txtHidden.Text = m_text;
-                    txtHidden.Id = m_cellid + 800;
-                    txtHidden.Visibility = ViewStates.Gone;
-                    row.AddView(txtHidden);
-                }
 
                 if (m_iRecordCounter > 0)
                 {
@@ -1742,6 +1738,25 @@ namespace appBusinessFormBuilder
                     txtHiddenRC.Visibility = ViewStates.Gone;
                     row.AddView(txtHiddenRC);
                 }
+
+                //In every case add a hidden textview that holds the original value
+                if (iType != (int)ItemType.ColumnHeader && iType != (int)ItemType.RowHeader &&
+                    iType != (int)ItemType.ColumnDetail && iType != (int)ItemType.RowDetail &&
+                    iType != (int)ItemType.ColumnFooter && iType != (int)ItemType.RowFooter)
+                {
+                    TextView txtHiddenKey = new TextView(m_context);
+                    txtHiddenKey.Text = m_Key.ToString();
+                    txtHiddenKey.Id = m_cellid + 600;
+                    txtHiddenKey.Visibility = ViewStates.Gone;
+                    row.AddView(txtHiddenKey);
+
+                    TextView txtHidden = new TextView(m_context);
+                    txtHidden.Text = m_text;
+                    txtHidden.Id = m_cellid + 800;
+                    txtHidden.Visibility = ViewStates.Gone;
+                    row.AddView(txtHidden);
+                }
+
 
                 //Now add a button for the attributes
                 if (m_iBuildType == 1)
@@ -1940,7 +1955,6 @@ namespace appBusinessFormBuilder
                 }
 
             }
-
         }
 
         //public class ZoomView : RelativeLayout      
